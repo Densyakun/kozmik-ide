@@ -1,0 +1,21 @@
+{
+  "name": "kozmik-ide",
+  "version": "0.0.1",
+  "description": "Kozmik IDE is the No-code development platform (NCDP).",
+  "main": "kozmik-ide.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Densyakun/kozmik-ide.git"
+  },
+  "keywords": [],
+  "author": "Densyakun <densyakun1128@gmail.com> (https://densyakun.github.io/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Densyakun/kozmik-ide/issues"
+  },
+  "homepage": "https://github.com/Densyakun/kozmik-ide#readme",
+  "dependencies": {}
+}
