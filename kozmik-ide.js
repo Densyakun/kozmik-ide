@@ -7,10 +7,9 @@ module.exports = {
   addonEnablingIsDone: false,
   addAddon: function (m) {
     this.addons[m.i] = m;
-    if (this.addonEnablingIsDone) {
+    if (this.addonEnablingIsDone)
       this.enableAddon(m);
-      m.listeners.addonEnablingIsDone(this);
-    } else
+    else
       m.enabled = false;
   },
   enableAddon: function (m) {
@@ -19,6 +18,8 @@ module.exports = {
     for (k in m.listeners)
       this.emitter.on(k, m.listeners[k]);
     this.emitter.emit('enabled', this, m);
+    if (this.addonEnablingIsDone)
+      m.listeners.addonEnablingIsDone(this);
   },
   disableAddon: function (m) {
     for (k in m.listeners)
