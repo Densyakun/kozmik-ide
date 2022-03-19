@@ -1,20 +1,18 @@
 module.exports = {
   i: 'test',
-  listeners: {
-    enable: kozmik => {
-      console.log('e');
-    },
-    enabled: (kozmik, m) => {
-      console.log('ed: ' + m.i);
-    },
-    addonEnablingIsDone: kozmik => {
-      console.log('aED');
-    },
-    disable: kozmik => {
-      console.log('d');
-    },
-    disabled: (kozmik, m) => {
-      console.log('dd: ' + m.i);
-    }
+  onEnable: function (kozmik) {
+    console.log(`${this.i}:enable`);
+  },
+  onEnabled: function (kozmik, m) {
+    console.log(`${this.i}:enabled: ${m.i}`);
+  },
+  onAddonEnablingIsDone: function (kozmik) {
+    console.log(`${this.i}:addonEnablingIsDone`);
+  },
+  onDisable: function (kozmik) {
+    console.log(`${this.i}:disable`);
+  },
+  onDisabled: function (kozmik, m) {
+    console.log(`${this.i}:disabled: ${m.i}`);
   }
 };

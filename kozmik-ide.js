@@ -1,9 +1,7 @@
-const EventEmitter = require('events');
 const fs = require('fs');
 
 module.exports = {
   addons: {},
-  emitter: new EventEmitter(),
   addonEnablingIsDone: false,
   addAddon: function (m) {
     this.addons[m.i] = m;
@@ -14,19 +12,21 @@ module.exports = {
   },
   enableAddon: function (m) {
     m.enabled = true;
-    m.listeners.enable(this);
-    for (k in m.listeners)
-      this.emitter.on(k, m.listeners[k]);
-    this.emitter.emit('enabled', this, m);
-    if (this.addonEnablingIsDone)
-      m.listeners.addonEnablingIsDone(this);
+    if (m.onEnable)
+      m.onEnable(this);
+    for (i in this.addons)
+      if (this.addons[i].enabled && this.addons[i].onEnabled)
+        this.addons[i].onEnabled(this, m);
+    if (this.addonEnablingIsDone && m.onAddonEnablingIsDone)
+      m.onAddonEnablingIsDone(this);
   },
   disableAddon: function (m) {
-    for (k in m.listeners)
-      this.emitter.off(k, m.listeners[k]);
     m.enabled = false;
-    m.listeners.disable(this);
-    this.emitter.emit('disabled', this, m);
+    if (m.onDisable)
+      m.onDisable(this);
+    for (i in this.addons)
+      if (this.addons[i].enabled && this.addons[i].onDisabled)
+        this.addons[i].onDisabled(this, m);
   },
   removeAddon: function (i) {
     if (this.addons[i].enabled)
@@ -41,9 +41,11 @@ fs.readFile('./kozmik-addons.json', (err, data) => {
     JSON.parse(data).forEach(e => module.exports.addAddon(require(e)));
 
     // Enabling add-ons
-    for (i in module.exports.addons)
+    for (i in module.exports.addons) {
       module.exports.enableAddon(module.exports.addons[i]);
-    module.exports.emitter.emit('addonEnablingIsDone', module.exports);
+      if (module.exports.addons[i].onAddonEnablingIsDone)
+        module.exports.addons[i].onAddonEnablingIsDone();
+    }
     module.exports.addonEnablingIsDone = true;
   } else
     console.log(err);
