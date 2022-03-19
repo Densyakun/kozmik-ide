@@ -7,8 +7,8 @@ module.exports = {
     enabled: (kozmik, m) => {
       console.log('ed: ' + m.i);
     },
-    allEnabled: kozmik => {
-      console.log('aEd');
+    addonEnablingIsDone: kozmik => {
+      console.log('aED');
     },
     disable: kozmik => {
       console.log('d');

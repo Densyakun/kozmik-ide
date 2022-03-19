@@ -4,11 +4,11 @@ module.exports = {
     enable: kozmik => {
       console.log('e1');
     },
-    enabled: kozmik => {
-      console.log('ed1');
+    enabled: (kozmik, m) => {
+      console.log('ed1: ' + m.i);
     },
-    allEnabled: kozmik => {
-      console.log('aEd1');
+    addonEnablingIsDone: kozmik => {
+      console.log('aED1');
     },
     disable: kozmik => {
       console.log('d1');
