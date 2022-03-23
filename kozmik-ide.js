@@ -35,6 +35,8 @@ module.exports = {
   }
 };
 
+require('./server.js');
+
 // Load add-ons
 fs.readFile('./kozmik-addons.json', (err, data) => {
   if (data) {
