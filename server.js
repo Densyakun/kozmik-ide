@@ -1,5 +1,7 @@
 const fastify = require('fastify')()
 
+fastify.register(require('./static-server'))
+
 const start = async () => {
   try {
     await fastify.listen(3000, '0.0.0.0')
