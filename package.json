@@ -17,5 +17,8 @@
     "url": "https://github.com/Densyakun/kozmik-ide/issues"
   },
   "homepage": "https://github.com/Densyakun/kozmik-ide#readme",
-  "dependencies": {}
+  "dependencies": {
+    "fastify": "^3.27.4",
+    "fastify-static": "^4.6.1"
+  }
 }
