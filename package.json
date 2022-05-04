@@ -2,10 +2,13 @@
   "name": "kozmik-ide",
   "version": "0.0.1",
   "description": "Kozmik IDE is the No-code development platform (NCDP).",
-  "main": "kozmik-ide.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "files": [
+    "lib/"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Densyakun/kozmik-ide.git"
@@ -20,5 +23,9 @@
   "dependencies": {
     "fastify": "^3.27.4",
     "fastify-static": "^4.6.1"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "test"
   }
 }
