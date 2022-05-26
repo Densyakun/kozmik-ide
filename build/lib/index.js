@@ -1,10 +1,3 @@
-/*
-フロントエンド:
-- Mikado
-- ファイル管理はシェルを参考
-- 最初に./を表示
-- カレントディレクトリを移動できるようにする
-*/
 const fs = require('fs');
 const path = require('path');
 
@@ -41,7 +34,6 @@ module.exports = {
       this.disableAddon(this.addons[i]);
     delete this.addons[i];
   },
-  ast: require('./ast/ast.js'),
   server: require('./server/server.js')
 };
 
