@@ -1,6 +1,7 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import React from 'react'
+import Container from '@mui/material/Container'
+import FileExplorer from '../components/FileExplorer'
 import LoginForm from '../components/LoginForm'
 import LogoutButton from '../components/LogoutButton'
 import useUser from '../lib/useUser'
@@ -16,15 +17,24 @@ const Home: NextPage = () => {
         <title>Kozmik IDE</title>
       </Head>
 
-      {user.isLoggedIn === true && (user.loginPasswordIsExist ?? false) &&
-        <LogoutButton />
-      }
+      {user.isLoggedIn
+        ? (
+          <>
+            {(user.loginPasswordIsExist ?? false) &&
+              <LogoutButton />
+            }
 
-      <div className="container">
-        {!user.isLoggedIn &&
-          <LoginForm />
-        }
-      </div>
+            <Container fixed>
+              <FileExplorer path='./' />
+            </Container>
+          </>
+        )
+        : (
+          <>
+            < LoginForm />
+          </>
+        )
+      }
     </>
   )
 }
