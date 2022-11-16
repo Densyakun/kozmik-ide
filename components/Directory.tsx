@@ -47,6 +47,8 @@ export default function Directory({ path }: { path: string }) {
     Your search did not match any documents.
   </Alert>;
 
+  items.sort((a, b) => a.isDirectory === b.isDirectory ? 0 : a.isDirectory ? -1 : 1);
+
   return (
     <>
       <FixedSizeList
