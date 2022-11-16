@@ -1,13 +1,11 @@
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 import Alert from '@mui/material/Alert';
-import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Skeleton from '@mui/material/Skeleton';
-import Stack from '@mui/material/Stack';
 import FolderIcon from '@mui/icons-material/Folder';
 import DeleteIcon from '@mui/icons-material/Delete';
 import useDirectory from '../lib/useDirectory';
@@ -23,11 +21,6 @@ function renderRow(props: ListChildComponentProps<Dir>) {
       key={index}
       component="div"
       disablePadding
-      secondaryAction={
-        <IconButton edge="end" aria-label="delete">
-          <DeleteIcon />
-        </IconButton>
-      }
     >
       <ListItemButton>
         {item.isDirectory &&

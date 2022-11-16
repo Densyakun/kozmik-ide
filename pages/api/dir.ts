@@ -6,11 +6,11 @@ import { readdir } from 'fs/promises';
 export type Dir = {
   name: string;
   isDirectory: boolean;
-}[] | string;
+}[];
 
 export default withIronSessionApiRoute(route, sessionOptions);
 
-async function route(req: NextApiRequest, res: NextApiResponse<Dir>) {
+async function route(req: NextApiRequest, res: NextApiResponse<Dir | string>) {
   if (process.env.LOGIN_PASSWORD && !req.session.user)
     return res.status(401).end();
 
