@@ -25,7 +25,7 @@ const Home: NextPage = () => {
             }
 
             <Container fixed>
-              <FileExplorer path='./' />
+              <FileExplorer />
             </Container>
           </>
         )

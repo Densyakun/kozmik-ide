@@ -1,18 +1,16 @@
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 import Alert from '@mui/material/Alert';
-import IconButton from '@mui/material/IconButton';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Skeleton from '@mui/material/Skeleton';
 import FolderIcon from '@mui/icons-material/Folder';
-import DeleteIcon from '@mui/icons-material/Delete';
 import useDirectory from '../lib/useDirectory';
 import { Dir } from '../pages/api/dir';
 
-function renderRow(props: ListChildComponentProps<Dir>) {
-  const { data: items, index, style } = props;
+function renderRow(props: ListChildComponentProps<{ items: Dir, onClick: (name: string) => void }>) {
+  const { data: { items, onClick }, index, style } = props;
   const item = items[index];
 
   return (
@@ -22,19 +20,20 @@ function renderRow(props: ListChildComponentProps<Dir>) {
       component="div"
       disablePadding
     >
-      <ListItemButton>
-        {item.isDirectory &&
+      {item.isDirectory
+        ? <ListItemButton onClick={e => { onClick(item.name) }}>
           <ListItemIcon>
             <FolderIcon />
           </ListItemIcon>
-        }
-        <ListItemText inset={!item.isDirectory} primary={item.name} />
-      </ListItemButton>
+          <ListItemText primary={item.name} />
+        </ListItemButton>
+        : <ListItemText inset primary={item.name} />
+      }
     </ListItem>
   );
 }
 
-export default function Directory({ path }: { path: string }) {
+export default function Directory({ path, onClick }: { path: string, onClick: (name: string) => void }) {
   const { items, isLoading, isError } = useDirectory(path);
 
   if (isLoading) return <Skeleton
@@ -55,7 +54,7 @@ export default function Directory({ path }: { path: string }) {
         height={400}
         width={'100%'}
         itemCount={items.length}
-        itemData={items}
+        itemData={{ items: items, onClick: onClick }}
         itemSize={46}
         overscanCount={5}
       >
