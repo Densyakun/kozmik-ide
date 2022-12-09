@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { useForm, Controller } from 'react-hook-form';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
@@ -70,7 +69,6 @@ export default function Form({ }) {
           type="submit"
           disabled={isSubmitting}
         >
-          <i className='bi bi-plus'></i>
           Login
         </Button>
       </Stack>
