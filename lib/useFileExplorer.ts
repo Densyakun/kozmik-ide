@@ -8,13 +8,13 @@ export default function useFileExplorer() {
   const [currentPath, setCurrentPath] = useState('');
 
   useEffect(() => {
-    setCurrentPath(router.query.currentPath as string || initCurrentPath);
+    setCurrentPath(decodeURIComponent(router.query.currentPath as string || initCurrentPath));
   }, [router.query.currentPath]);
 
   return {
     currentPath, setCurrentPath: (newCurrentPath: string) => {
       setCurrentPath(newCurrentPath)
-      router.push(newCurrentPath === initCurrentPath ? {} : { query: { currentPath: newCurrentPath } }, undefined, { scroll: false })
+      router.push(newCurrentPath === initCurrentPath ? {} : { query: { currentPath: encodeURIComponent(newCurrentPath) } }, undefined, { scroll: false })
     }
   };
 }

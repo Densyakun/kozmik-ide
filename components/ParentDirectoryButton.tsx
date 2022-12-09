@@ -8,7 +8,7 @@ export default function ParentDirectoryButton({ currentPath, setCurrentPath }: {
 
   return <IconButton aria-label="up one level"
     component={Link}
-    href={`?currentPath=${parentPath}`}
+    href={`?currentPath=${encodeURIComponent(parentPath)}`}
     onClick={e => {
       e.preventDefault();
       setCurrentPath(parentPath);
