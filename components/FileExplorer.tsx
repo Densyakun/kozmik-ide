@@ -1,30 +1,25 @@
 import path from 'path';
-import { useRouter } from 'next/router';
-import React, { useState, useEffect } from 'react';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Directory from "./Directory";
-
-const initCurrentPath = './'
+import ParentDirectoryButton from './ParentDirectoryButton';
+import useFileExplorer from '../lib/useFileExplorer';
 
 export default function FileExplorer() {
-  const router = useRouter()
-
-  const [currentPath, setCurrentPath] = useState('')
-
-  useEffect(() => {
-    setCurrentPath(router.query.currentPath as string || initCurrentPath)
-  }, [router.query.currentPath])
+  const { currentPath, setCurrentPath } = useFileExplorer()
 
   const handleClick = (name: string) => {
     const newCurrentPath = path.resolve(currentPath, name)
     setCurrentPath(newCurrentPath)
-    router.push(newCurrentPath === initCurrentPath ? {} : { query: { currentPath: newCurrentPath } }, undefined, { scroll: false })
   }
 
   return <>
-    <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-      {currentPath}
-    </Typography>
+    <Stack direction="row" alignItems="center" spacing={2}>
+      <ParentDirectoryButton currentPath={currentPath} setCurrentPath={setCurrentPath} />
+      <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
+        {currentPath}
+      </Typography>
+    </Stack>
     <Directory path={currentPath} onClick={handleClick} />
   </>
 }
