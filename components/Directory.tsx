@@ -6,6 +6,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Skeleton from '@mui/material/Skeleton';
 import FolderIcon from '@mui/icons-material/Folder';
+import LinkIcon from '@mui/icons-material/Link';
 import useDirectory from '../lib/useDirectory';
 import { Dir } from '../pages/api/dir';
 
@@ -20,13 +21,14 @@ function renderRow(props: ListChildComponentProps<{ items: Dir, onClick: (name: 
       component="div"
       disablePadding
     >
-      <ListItemButton onClick={e => { if (item.isDirectory) onClick(item.name) }}>
-        {item.isDirectory &&
+      <ListItemButton onClick={e => { if (item.isDirectory || item.isSymbolicLink) onClick(item.name) }}>
+        {(item.isDirectory || item.isSymbolicLink) &&
           <ListItemIcon>
-            <FolderIcon />
+            {item.isDirectory && <FolderIcon />}
+            {item.isSymbolicLink && <LinkIcon />}
           </ListItemIcon>
         }
-        <ListItemText inset={!item.isDirectory} primary={item.name} />
+        <ListItemText inset={!(item.isDirectory || item.isSymbolicLink)} primary={item.name} />
       </ListItemButton>
     </ListItem>
   );
@@ -45,15 +47,19 @@ export default function Directory({ path, onClick }: { path: string, onClick: (n
     Your search did not match any documents.
   </Alert>;
 
-  items.sort((a, b) => a.isDirectory === b.isDirectory ? 0 : a.isDirectory ? -1 : 1);
+  let directories: Dir = [];
+  let files: Dir = [];
+  items.forEach(item => item.isDirectory || item.isSymbolicLink ? directories.push(item) : files.push(item));
+
+  const items1 = [...directories, ...files];
 
   return (
     <>
       <FixedSizeList
         height={400}
         width={'100%'}
-        itemCount={items.length}
-        itemData={{ items: items, onClick: onClick }}
+        itemCount={items1.length}
+        itemData={{ items: items1, onClick: onClick }}
         itemSize={46}
         overscanCount={5}
       >

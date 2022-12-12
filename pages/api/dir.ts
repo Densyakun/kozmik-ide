@@ -6,6 +6,7 @@ import { readdir } from 'fs/promises';
 export type Dir = {
   name: string;
   isDirectory: boolean;
+  isSymbolicLink: boolean;
 }[];
 
 export default withIronSessionApiRoute(route, sessionOptions);
@@ -21,7 +22,8 @@ async function route(req: NextApiRequest, res: NextApiResponse<Dir | string>) {
 
     res.json(files.map(file => ({
       name: file.name,
-      isDirectory: file.isDirectory()
+      isDirectory: file.isDirectory(),
+      isSymbolicLink: file.isSymbolicLink()
     })));
   } catch (err) {
     res.status(400);
