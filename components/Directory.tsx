@@ -20,21 +20,20 @@ function renderRow(props: ListChildComponentProps<{ items: Dir, onClick: (name: 
       component="div"
       disablePadding
     >
-      {item.isDirectory
-        ? <ListItemButton onClick={e => { onClick(item.name) }}>
+      <ListItemButton onClick={e => { if (item.isDirectory) onClick(item.name) }}>
+        {item.isDirectory &&
           <ListItemIcon>
             <FolderIcon />
           </ListItemIcon>
-          <ListItemText primary={item.name} />
-        </ListItemButton>
-        : <ListItemText inset primary={item.name} />
-      }
+        }
+        <ListItemText inset={!item.isDirectory} primary={item.name} />
+      </ListItemButton>
     </ListItem>
   );
 }
 
 export default function Directory({ path, onClick }: { path: string, onClick: (name: string) => void }) {
-  const { items, isLoading, isError } = useDirectory(path);
+  let { items, isLoading, isError } = useDirectory(path);
 
   if (isLoading) return <Skeleton
     width={'100%'}

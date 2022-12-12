@@ -14,10 +14,12 @@ export default function FileExplorer() {
   }
 
   return <>
-    <Stack direction="row" alignItems="center" spacing={2}>
-      <ParentDirectoryButton currentPath={currentPath} setCurrentPath={setCurrentPath} />
-      <CurrentPathInput defaultValue={currentPath} setCurrentPath={setCurrentPath} />
+    <Stack spacing={2}>
+      <Stack direction="row" alignItems="center" spacing={2}>
+        <ParentDirectoryButton currentPath={currentPath} setCurrentPath={setCurrentPath} />
+        <CurrentPathInput defaultValue={currentPath} setCurrentPath={setCurrentPath} />
+      </Stack>
+      <Directory path={currentPath} onClick={handleClick} />
     </Stack>
-    <Directory path={currentPath} onClick={handleClick} />
   </>
 }
