@@ -11,7 +11,7 @@ async function route(req: NextApiRequest, res: NextApiResponse<string>) {
 
   try {
     if (req.method === 'POST') {
-      const path = req.body.path as string;
+      const path = decodeURIComponent(req.body.path as string);
 
       await writeFile(path, "");
 
