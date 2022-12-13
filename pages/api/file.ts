@@ -1,17 +1,11 @@
 import { withIronSessionApiRoute } from "iron-session/next";
 import { sessionOptions } from "../../lib/session";
 import { NextApiRequest, NextApiResponse } from "next";
-import { mkdir, readdir } from 'fs/promises';
-
-export type Dir = {
-  name: string;
-  isDirectory: boolean;
-  isSymbolicLink: boolean;
-}[];
+import { writeFile } from "fs/promises";
 
 export default withIronSessionApiRoute(route, sessionOptions);
 
-async function route(req: NextApiRequest, res: NextApiResponse<Dir | string>) {
+async function route(req: NextApiRequest, res: NextApiResponse<string>) {
   if (process.env.LOGIN_PASSWORD && !req.session.user)
     return res.status(401).end();
 
@@ -19,19 +13,9 @@ async function route(req: NextApiRequest, res: NextApiResponse<Dir | string>) {
     if (req.method === 'POST') {
       const path = req.body.path as string;
 
-      await mkdir(path);
+      await writeFile(path, "");
 
       res.end();
-    } else {
-      const path = req.query.path as string;
-
-      const files = await readdir(path, { withFileTypes: true });
-
-      res.json(files.map(file => ({
-        name: file.name,
-        isDirectory: file.isDirectory(),
-        isSymbolicLink: file.isSymbolicLink()
-      })));
     }
   } catch (err) {
     res.status(400);

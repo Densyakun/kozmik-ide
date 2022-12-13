@@ -5,7 +5,7 @@ const initCurrentPath = '.';
 
 export default function useFileExplorer() {
   const router = useRouter();
-  const [currentPath, setCurrentPath] = useState('');
+  const [currentPath, setCurrentPath] = useState('.');
 
   useEffect(() => {
     setCurrentPath(decodeURIComponent(router.query.currentPath as string || initCurrentPath));

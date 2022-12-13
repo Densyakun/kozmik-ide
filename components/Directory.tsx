@@ -7,12 +7,21 @@ import ListItemText from '@mui/material/ListItemText';
 import Skeleton from '@mui/material/Skeleton';
 import FolderIcon from '@mui/icons-material/Folder';
 import LinkIcon from '@mui/icons-material/Link';
+import DirectoryOrFileNameInput from './DirectoryOrFileNameInput';
 import useDirectory from '../lib/useDirectory';
 import { Dir } from '../pages/api/dir';
 
-function renderRow(props: ListChildComponentProps<{ items: Dir, onClick: (name: string) => void }>) {
+function renderRow(props: ListChildComponentProps<{
+  items: (Dir[number]
+    | {
+      name?: undefined,
+      isDirectory: boolean,
+      element: JSX.Element
+    })[], onClick: (name: string) => void
+}>) {
   const { data: { items, onClick }, index, style } = props;
   const item = items[index];
+  const isDirItem = item.name !== undefined;
 
   return (
     <ListItem
@@ -21,21 +30,22 @@ function renderRow(props: ListChildComponentProps<{ items: Dir, onClick: (name: 
       component="div"
       disablePadding
     >
-      <ListItemButton onClick={e => { if (item.isDirectory || item.isSymbolicLink) onClick(item.name) }}>
-        {(item.isDirectory || item.isSymbolicLink) &&
-          <ListItemIcon>
-            {item.isDirectory && <FolderIcon />}
-            {item.isSymbolicLink && <LinkIcon />}
-          </ListItemIcon>
+      <ListItemButton onClick={e => { if (isDirItem && (item.isDirectory || item.isSymbolicLink)) onClick(item.name) }}>
+        <ListItemIcon>
+          {item.isDirectory && <FolderIcon />}
+          {isDirItem && item.isSymbolicLink && <LinkIcon />}
+        </ListItemIcon>
+        {item.name === undefined
+          ? item.element
+          : <ListItemText primary={item.name} />
         }
-        <ListItemText inset={!(item.isDirectory || item.isSymbolicLink)} primary={item.name} />
       </ListItemButton>
     </ListItem>
   );
 }
 
 export default function Directory({ path, onClick }: { path: string, onClick: (name: string) => void }) {
-  let { items, isLoading, isError } = useDirectory(path);
+  let { items, isLoading, isError, mutate } = useDirectory(path);
 
   if (isLoading) return <Skeleton
     width={'100%'}
@@ -51,7 +61,16 @@ export default function Directory({ path, onClick }: { path: string, onClick: (n
   let files: Dir = [];
   items.forEach(item => item.isDirectory || item.isSymbolicLink ? directories.push(item) : files.push(item));
 
-  const items1 = [...directories, ...files];
+  const handleMakeDirItem = (newItem: Dir[number]) => {
+    mutate([...items, newItem]);
+  };
+
+  const items1 = [
+    ...directories,
+    { isDirectory: true, element: <DirectoryOrFileNameInput handleMakeDirItem={handleMakeDirItem} isDirectory={true} /> },
+    ...files,
+    { isDirectory: false, element: <DirectoryOrFileNameInput handleMakeDirItem={handleMakeDirItem} isDirectory={false} /> }
+  ];
 
   return (
     <>
