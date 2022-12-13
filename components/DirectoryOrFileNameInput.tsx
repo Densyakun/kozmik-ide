@@ -1,3 +1,4 @@
+import { resolve } from 'path';
 import { useForm } from 'react-hook-form';
 import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
@@ -7,14 +8,22 @@ type Inputs = {
   path: string;
 };
 
-export default function Form({ handleMakeDirItem, isDirectory }: { handleMakeDirItem: (newItem: Dir[number]) => void, isDirectory: boolean }) {
+export default function Form({
+  currentPath,
+  handleMakeDirItem,
+  isDirectory
+}: {
+  currentPath: string,
+  handleMakeDirItem: (newItem: Dir[number]) => void,
+  isDirectory: boolean
+}) {
   const {
     register,
     handleSubmit
   } = useForm<Inputs>();
 
   const onSubmit = async (input: Inputs) => {
-    const path = encodeURIComponent(input.path);
+    const path = encodeURIComponent(resolve(currentPath, input.path));
 
     if (isDirectory)
       fetch("/api/dir", {
@@ -28,7 +37,7 @@ export default function Form({ handleMakeDirItem, isDirectory }: { handleMakeDir
           if (!response.ok) throw new Error('Network response was not OK');
 
           handleMakeDirItem({
-            name: path,
+            name: input.path,
             isDirectory: isDirectory,
             isSymbolicLink: false
           });
@@ -48,7 +57,7 @@ export default function Form({ handleMakeDirItem, isDirectory }: { handleMakeDir
           if (!response.ok) throw new Error('Network response was not OK');
 
           handleMakeDirItem({
-            name: path,
+            name: input.path,
             isDirectory: isDirectory,
             isSymbolicLink: false
           });

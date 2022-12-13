@@ -17,13 +17,13 @@ async function route(req: NextApiRequest, res: NextApiResponse<Dir | string>) {
 
   try {
     if (req.method === 'POST') {
-      const path = req.body.path as string;
+      const path = decodeURIComponent(req.body.path as string);
 
       await mkdir(path);
 
       res.end();
     } else {
-      const path = req.query.path as string;
+      const path = decodeURIComponent(req.query.path as string);
 
       const files = await readdir(path, { withFileTypes: true });
 

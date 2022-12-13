@@ -67,9 +67,9 @@ export default function Directory({ path, onClick }: { path: string, onClick: (n
 
   const items1 = [
     ...directories,
-    { isDirectory: true, element: <DirectoryOrFileNameInput handleMakeDirItem={handleMakeDirItem} isDirectory={true} /> },
+    { isDirectory: true, element: <DirectoryOrFileNameInput currentPath={path} handleMakeDirItem={handleMakeDirItem} isDirectory={true} /> },
     ...files,
-    { isDirectory: false, element: <DirectoryOrFileNameInput handleMakeDirItem={handleMakeDirItem} isDirectory={false} /> }
+    { isDirectory: false, element: <DirectoryOrFileNameInput currentPath={path} handleMakeDirItem={handleMakeDirItem} isDirectory={false} /> }
   ];
 
   return (
