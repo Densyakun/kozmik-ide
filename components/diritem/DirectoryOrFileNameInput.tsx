@@ -2,7 +2,7 @@ import { resolve } from 'path';
 import { useForm } from 'react-hook-form';
 import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
-import { Dir } from '../pages/api/dir';
+import { Dir } from '../../pages/api/dir';
 
 type Inputs = {
   path: string;

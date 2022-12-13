@@ -1,7 +1,7 @@
+import { mkdir, readdir, remove } from 'fs-extra';
 import { withIronSessionApiRoute } from "iron-session/next";
 import { sessionOptions } from "../../lib/session";
 import { NextApiRequest, NextApiResponse } from "next";
-import { mkdir, readdir } from 'fs/promises';
 
 export type Dir = {
   name: string;
@@ -16,13 +16,7 @@ async function route(req: NextApiRequest, res: NextApiResponse<Dir | string>) {
     return res.status(401).end();
 
   try {
-    if (req.method === 'POST') {
-      const path = decodeURIComponent(req.body.path as string);
-
-      await mkdir(path);
-
-      res.end();
-    } else {
+    if (req.method === 'GET') {
       const path = decodeURIComponent(req.query.path as string);
 
       const files = await readdir(path, { withFileTypes: true });
@@ -32,6 +26,18 @@ async function route(req: NextApiRequest, res: NextApiResponse<Dir | string>) {
         isDirectory: file.isDirectory(),
         isSymbolicLink: file.isSymbolicLink()
       })));
+    } else if (req.method === 'POST') {
+      const path = decodeURIComponent(req.body.path as string);
+
+      await mkdir(path);
+
+      res.end();
+    } else if (req.method === 'DELETE') {
+      const path = decodeURIComponent(req.body.path as string);
+
+      await remove(path);
+
+      res.end();
     }
   } catch (err) {
     res.status(400);

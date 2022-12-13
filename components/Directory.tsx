@@ -1,3 +1,4 @@
+import { resolve } from 'path';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 import Alert from '@mui/material/Alert';
 import ListItem from '@mui/material/ListItem';
@@ -7,7 +8,8 @@ import ListItemText from '@mui/material/ListItemText';
 import Skeleton from '@mui/material/Skeleton';
 import FolderIcon from '@mui/icons-material/Folder';
 import LinkIcon from '@mui/icons-material/Link';
-import DirectoryOrFileNameInput from './DirectoryOrFileNameInput';
+import DirectoryOrFileNameInput from './diritem/DirectoryOrFileNameInput';
+import DirItemMenu from './diritem/DirItemMenu';
 import useDirectory from '../lib/useDirectory';
 import { Dir } from '../pages/api/dir';
 
@@ -17,9 +19,9 @@ function renderRow(props: ListChildComponentProps<{
       name?: undefined,
       isDirectory: boolean,
       element: JSX.Element
-    })[], onClick: (name: string) => void
+    })[], onClick: (name: string) => void, currentPath: string, dirItems: Dir, setDirItems: (diritems: Dir) => void
 }>) {
-  const { data: { items, onClick }, index, style } = props;
+  const { data: { items, onClick, currentPath, dirItems, setDirItems }, index, style } = props;
   const item = items[index];
   const isDirItem = item.name !== undefined;
 
@@ -40,6 +42,7 @@ function renderRow(props: ListChildComponentProps<{
           : <ListItemText primary={item.name} />
         }
       </ListItemButton>
+      {item.name !== undefined && <DirItemMenu path={resolve(currentPath, item.name)} item={item} dirItems={dirItems} setDirItems={setDirItems} />}
     </ListItem>
   );
 }
@@ -78,7 +81,7 @@ export default function Directory({ path, onClick }: { path: string, onClick: (n
         height={400}
         width={'100%'}
         itemCount={items1.length}
-        itemData={{ items: items1, onClick: onClick }}
+        itemData={{ items: items1, onClick, currentPath: path, dirItems: items, setDirItems: mutate }}
         itemSize={46}
         overscanCount={5}
       >

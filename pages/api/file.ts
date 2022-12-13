@@ -1,7 +1,7 @@
+import { unlink, writeFile } from "fs-extra";
 import { withIronSessionApiRoute } from "iron-session/next";
 import { sessionOptions } from "../../lib/session";
 import { NextApiRequest, NextApiResponse } from "next";
-import { writeFile } from "fs/promises";
 
 export default withIronSessionApiRoute(route, sessionOptions);
 
@@ -14,6 +14,12 @@ async function route(req: NextApiRequest, res: NextApiResponse<string>) {
       const path = decodeURIComponent(req.body.path as string);
 
       await writeFile(path, "");
+
+      res.end();
+    } else if (req.method === 'DELETE') {
+      const path = decodeURIComponent(req.body.path as string);
+
+      await unlink(path);
 
       res.end();
     }
