@@ -35,7 +35,6 @@ export default function Form({ defaultValue, setCurrentPath }: { defaultValue: s
             {...field}
             fullWidth
             label="Current directory path"
-            defaultValue={defaultValue}
             variant="standard"
             InputLabelProps={{ shrink: true }}
             inputProps={{ sx: { fontSize: "1.25rem" } }}
