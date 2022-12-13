@@ -56,10 +56,6 @@ export default function Directory({ path, onClick }: { path: string, onClick: (n
   />;
   if (isError) return <Alert severity="error">failed to load.</Alert>;
 
-  if (!items.length) return <Alert severity="info">
-    Your search did not match any documents.
-  </Alert>;
-
   let directories: Dir = [];
   let files: Dir = [];
   items.forEach(item => item.isDirectory || item.isSymbolicLink ? directories.push(item) : files.push(item));
