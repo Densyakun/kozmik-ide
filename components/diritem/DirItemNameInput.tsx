@@ -35,7 +35,7 @@ export default function Form({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ path: newPath })
+        body: JSON.stringify({ newPath: newPath })
       })
         .then((response: any) => {
           if (!response.ok) throw new Error('Network response was not OK');
@@ -55,7 +55,7 @@ export default function Form({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ path: newPath })
+        body: JSON.stringify({ newPath: newPath })
       })
         .then((response: any) => {
           if (!response.ok) throw new Error('Network response was not OK');

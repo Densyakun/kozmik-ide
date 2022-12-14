@@ -1,7 +1,8 @@
+import { NextApiRequest, NextApiResponse } from "next";
 import { rename, unlink, writeFile } from "fs-extra";
 import { withIronSessionApiRoute } from "iron-session/next";
 import { sessionOptions } from "../../lib/session";
-import { NextApiRequest, NextApiResponse } from "next";
+import { resolve } from "path";
 
 export default withIronSessionApiRoute(route, sessionOptions);
 
@@ -10,22 +11,21 @@ async function route(req: NextApiRequest, res: NextApiResponse<string>) {
     return res.status(401).end();
 
   try {
-    if (req.method === 'POST') {
-      const path = decodeURIComponent(req.body.path as string);
+    const path = decodeURIComponent(req.query.path as string);
 
-      await writeFile(path, "");
+    if (req.method === 'POST') {
+      const filePath = decodeURIComponent(req.body.filePath as string);
+
+      await writeFile(resolve(path, filePath), "");
 
       res.end();
     } else if (req.method === 'PUT') {
-      const oldPath = decodeURIComponent(req.query.path as string);
-      const newPath = decodeURIComponent(req.body.path as string);
+      const newPath = decodeURIComponent(req.body.newPath as string);
 
-      await rename(oldPath, newPath);
+      await rename(path, newPath);
 
       res.end();
     } else if (req.method === 'DELETE') {
-      const path = decodeURIComponent(req.body.path as string);
-
       await unlink(path);
 
       res.end();

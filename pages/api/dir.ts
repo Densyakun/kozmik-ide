@@ -1,7 +1,8 @@
+import { resolve } from 'path';
+import { NextApiRequest, NextApiResponse } from "next";
 import { mkdir, readdir, remove, rename } from 'fs-extra';
 import { withIronSessionApiRoute } from "iron-session/next";
 import { sessionOptions } from "../../lib/session";
-import { NextApiRequest, NextApiResponse } from "next";
 
 export type Dir = {
   name: string;
@@ -16,9 +17,9 @@ async function route(req: NextApiRequest, res: NextApiResponse<Dir | string>) {
     return res.status(401).end();
 
   try {
-    if (req.method === 'GET') {
-      const path = decodeURIComponent(req.query.path as string);
+    const path = decodeURIComponent(req.query.path as string);
 
+    if (req.method === 'GET') {
       const files = await readdir(path, { withFileTypes: true });
 
       res.json(files.map(file => ({
@@ -27,21 +28,18 @@ async function route(req: NextApiRequest, res: NextApiResponse<Dir | string>) {
         isSymbolicLink: file.isSymbolicLink()
       })));
     } else if (req.method === 'POST') {
-      const path = decodeURIComponent(req.body.path as string);
+      const filePath = decodeURIComponent(req.body.filePath as string);
 
-      await mkdir(path);
+      await mkdir(resolve(path, filePath));
 
       res.end();
     } else if (req.method === 'PUT') {
-      const oldPath = decodeURIComponent(req.query.path as string);
-      const newPath = decodeURIComponent(req.body.path as string);
+      const newPath = decodeURIComponent(req.body.newPath as string);
 
-      await rename(oldPath, newPath);
+      await rename(path, newPath);
 
       res.end();
     } else if (req.method === 'DELETE') {
-      const path = decodeURIComponent(req.body.path as string);
-
       await remove(path);
 
       res.end();

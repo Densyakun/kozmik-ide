@@ -6,12 +6,8 @@ const button: Button = {
     path = encodeURIComponent(path)
 
     if (item.isDirectory)
-      fetch("/api/dir", {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ path: path })
+      fetch(`/api/dir?path=${path}`, {
+        method: 'DELETE'
       })
         .then((response: any) => {
           if (!response.ok) throw new Error('Network response was not OK')
@@ -24,12 +20,8 @@ const button: Button = {
           console.error(error)
         })
     else
-      fetch("/api/file", {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ path: path })
+      fetch(`/api/file?path=${path}`, {
+        method: 'DELETE'
       })
         .then((response: any) => {
           if (!response.ok) throw new Error('Network response was not OK')
