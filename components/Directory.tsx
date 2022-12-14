@@ -8,22 +8,21 @@ import ListItemText from '@mui/material/ListItemText';
 import Skeleton from '@mui/material/Skeleton';
 import FolderIcon from '@mui/icons-material/Folder';
 import LinkIcon from '@mui/icons-material/Link';
-import DirectoryOrFileNameInput from './diritem/DirectoryOrFileNameInput';
+import CreateDirItemNameInput from './diritem/CreateDirItemNameInput';
+import DirItemNameInput from './diritem/DirItemNameInput';
 import DirItemMenu from './diritem/DirItemMenu';
 import useDirectory from '../lib/useDirectory';
 import { Dir } from '../pages/api/dir';
 
 function renderRow(props: ListChildComponentProps<{
-  items: (Dir[number]
-    | {
-      name?: undefined,
-      isDirectory: boolean,
-      element: JSX.Element
-    })[], onClick: (name: string) => void, currentPath: string, dirItems: Dir, setDirItems: (diritems: Dir) => void
+  items: { item: Dir[number], element: JSX.Element }[],
+  onClick: (name: string) => void,
+  currentPath: string,
+  dirItems: Dir,
+  setDirItems: (diritems: Dir) => void
 }>) {
   const { data: { items, onClick, currentPath, dirItems, setDirItems }, index, style } = props;
-  const item = items[index];
-  const isDirItem = item.name !== undefined;
+  const { item, element } = items[index];
 
   return (
     <ListItem
@@ -32,17 +31,14 @@ function renderRow(props: ListChildComponentProps<{
       component="div"
       disablePadding
     >
-      <ListItemButton onClick={e => { if (isDirItem && (item.isDirectory || item.isSymbolicLink)) onClick(item.name) }}>
+      <ListItemButton onClick={e => { if (item.name && (item.isDirectory || item.isSymbolicLink)) onClick(item.name) }}>
         <ListItemIcon>
           {item.isDirectory && <FolderIcon />}
-          {isDirItem && item.isSymbolicLink && <LinkIcon />}
+          {item.name && item.isSymbolicLink && <LinkIcon />}
         </ListItemIcon>
-        {item.name === undefined
-          ? item.element
-          : <ListItemText primary={item.name} />
-        }
       </ListItemButton>
-      {item.name !== undefined && <DirItemMenu path={resolve(currentPath, item.name)} item={item} dirItems={dirItems} setDirItems={setDirItems} />}
+      {element}
+      {item.name && <DirItemMenu path={resolve(currentPath, item.name)} item={item} dirItems={dirItems} setDirItems={setDirItems} />}
     </ListItem>
   );
 }
@@ -56,19 +52,23 @@ export default function Directory({ path, onClick }: { path: string, onClick: (n
   />;
   if (isError) return <Alert severity="error">failed to load.</Alert>;
 
-  let directories: Dir = [];
-  let files: Dir = [];
-  items.forEach(item => item.isDirectory || item.isSymbolicLink ? directories.push(item) : files.push(item));
+  let directories: { item: Dir[number], element: JSX.Element }[] = [];
+  let files: { item: Dir[number], element: JSX.Element }[] = [];
+  items.forEach(item => item.isDirectory || item.isSymbolicLink
+    ? directories.push({ item, element: <DirItemNameInput currentPath={path} item={item} dirItems={items} setDirItems={mutate} /> })
+    : files.push({ item, element: <DirItemNameInput currentPath={path} item={item} dirItems={items} setDirItems={mutate} /> }));
 
-  const handleMakeDirItem = (newItem: Dir[number]) => {
-    mutate([...items, newItem]);
-  };
-
-  const items1 = [
+  const items1: { item: Dir[number], element: JSX.Element }[] = [
     ...directories,
-    { isDirectory: true, element: <DirectoryOrFileNameInput currentPath={path} handleMakeDirItem={handleMakeDirItem} isDirectory={true} /> },
+    {
+      item: { name: "", isSymbolicLink: false, isDirectory: true },
+      element: <CreateDirItemNameInput currentPath={path} isDirectory={true} dirItems={items} setDirItems={mutate} />
+    },
     ...files,
-    { isDirectory: false, element: <DirectoryOrFileNameInput currentPath={path} handleMakeDirItem={handleMakeDirItem} isDirectory={false} /> }
+    {
+      item: { name: "", isSymbolicLink: false, isDirectory: false },
+      element: <CreateDirItemNameInput currentPath={path} isDirectory={false} dirItems={items} setDirItems={mutate} />
+    }
   ];
 
   return (

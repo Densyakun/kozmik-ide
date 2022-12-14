@@ -10,12 +10,14 @@ type Inputs = {
 
 export default function Form({
   currentPath,
-  handleMakeDirItem,
-  isDirectory
+  isDirectory,
+  dirItems,
+  setDirItems
 }: {
   currentPath: string,
-  handleMakeDirItem: (newItem: Dir[number]) => void,
-  isDirectory: boolean
+  isDirectory: boolean,
+  dirItems: Dir,
+  setDirItems: (dirItems: Dir) => void
 }) {
   const {
     register,
@@ -36,11 +38,11 @@ export default function Form({
         .then((response: any) => {
           if (!response.ok) throw new Error('Network response was not OK');
 
-          handleMakeDirItem({
+          setDirItems([...dirItems, {
             name: input.path,
             isDirectory: isDirectory,
             isSymbolicLink: false
-          });
+          }]);
         })
         .catch((error) => {
           console.error(error);
@@ -56,11 +58,11 @@ export default function Form({
         .then((response: any) => {
           if (!response.ok) throw new Error('Network response was not OK');
 
-          handleMakeDirItem({
+          setDirItems([...dirItems, {
             name: input.path,
             isDirectory: isDirectory,
             isSymbolicLink: false
-          });
+          }]);
         })
         .catch((error) => {
           console.error(error);
