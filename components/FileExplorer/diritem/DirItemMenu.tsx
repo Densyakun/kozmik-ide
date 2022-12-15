@@ -7,8 +7,8 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import deleteButton from './menuitem/deleteButton';
 import editCodeButton from './menuitem/editCodeButton';
-import { setCodeEditorPathContext } from '../../pages';
-import { Dir } from '../../pages/api/fs/dir';
+import { setCodeEditorPathContext } from '../../../pages';
+import { Dir } from '../../../pages/api/fs/dir';
 
 export type Button = {
   text: string,

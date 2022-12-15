@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
-import { Dir } from '../../pages/api/fs/dir';
+import { Dir } from '../../../pages/api/fs/dir';
 
 type Inputs = {
   path: string;

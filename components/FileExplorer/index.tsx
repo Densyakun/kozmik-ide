@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography';
 import CurrentPathInput from './CurrentPathInput';
 import Directory from "./Directory";
 import ParentDirectoryButton from './ParentDirectoryButton';
-import useFileExplorer from '../lib/useFileExplorer';
+import useFileExplorer from '../../lib/useFileExplorer';
 
 export default function FileExplorer() {
   const { currentPath, setCurrentPath } = useFileExplorer()

@@ -10,8 +10,8 @@ import LinkIcon from '@mui/icons-material/Link';
 import CreateDirItemNameInput from './diritem/CreateDirItemNameInput';
 import DirItemNameInput from './diritem/DirItemNameInput';
 import DirItemMenu from './diritem/DirItemMenu';
-import useDirectory from '../lib/useDirectory';
-import { Dir } from '../pages/api/fs/dir';
+import useDirectory from '../../lib/useDirectory';
+import { Dir } from '../../pages/api/fs/dir';
 
 function renderRow(props: ListChildComponentProps<{
   items: { item: Dir[number], element: JSX.Element }[],
