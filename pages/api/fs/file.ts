@@ -12,14 +12,15 @@ async function route(req: NextApiRequest, res: NextApiResponse<string>) {
 
   try {
     const path = decodeURIComponent(req.query.path as string);
-    const options = JSON.parse(req.query.options as string);
 
     if (req.method === 'GET') {
+      const options = JSON.parse(req.query.options as string);
+
       const data = await readFile(path, options as { flag?: string | undefined } | { encoding: string, flag?: string | undefined });
 
       res.send(data);
     } else if (req.method === 'POST') {
-      const filePath = decodeURIComponent(req.body.filePath as string);
+      const filePath = req.body.filePath as string;
 
       await writeFile(resolve(path, filePath), "");
 

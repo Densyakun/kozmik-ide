@@ -28,9 +28,9 @@ async function route(req: NextApiRequest, res: NextApiResponse<Dir | string>) {
         isSymbolicLink: file.isSymbolicLink()
       })));
     } else if (req.method === 'POST') {
-      const filePath = decodeURIComponent(req.body.filePath as string);
+      const dirPath = req.body.dirPath as string;
 
-      await mkdir(resolve(path, filePath));
+      await mkdir(resolve(path, dirPath));
 
       res.end();
     }

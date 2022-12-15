@@ -13,7 +13,7 @@ export default function CodeEditor() {
   useEffect(() => {
     setLoading(true);
 
-    fetch(`/api/fs/file?path=${path}&options=${JSON.stringify({ encoding: "utf8" })}`, {
+    fetch(`/api/fs/file?path=${encodeURIComponent(path)}&options=${JSON.stringify({ encoding: "utf8" })}`, {
       method: 'GET'
     })
       .then((response: Response) => {

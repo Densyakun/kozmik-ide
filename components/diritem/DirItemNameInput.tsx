@@ -26,10 +26,10 @@ export default function Form({
   } = useForm<Inputs>();
 
   const onSubmit = async (input: Inputs) => {
-    const oldPath = encodeURIComponent(resolve(currentPath, item.name));
-    const newPath = encodeURIComponent(resolve(currentPath, input.path));
+    const oldPath = resolve(currentPath, item.name);
+    const newPath = resolve(currentPath, input.path);
 
-    fetch(`/api/fs/rename?path=${oldPath}`, {
+    fetch(`/api/fs/rename?path=${encodeURIComponent(oldPath)}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

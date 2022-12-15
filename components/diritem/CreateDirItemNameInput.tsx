@@ -32,7 +32,7 @@ export default function Form({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ filePath: input.path })
+        body: JSON.stringify({ dirPath: input.path })
       })
         .then((response: Response) => {
           if (!response.ok) throw new Error('Network response was not OK');

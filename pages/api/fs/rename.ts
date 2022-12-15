@@ -13,7 +13,7 @@ async function route(req: NextApiRequest, res: NextApiResponse<string>) {
     const path = decodeURIComponent(req.query.path as string);
 
     if (req.method === 'POST') {
-      const newPath = decodeURIComponent(req.body.newPath as string);
+      const newPath = req.body.newPath as string;
 
       await rename(path, newPath);
 
