@@ -11,7 +11,9 @@ export default function CodeEditor() {
   const [value, setValue] = useState("");
 
   useEffect(() => {
-    setLoading(true);
+    if (!path) return;
+
+    setLoading(!!path);
 
     fetch(`/api/fs/file?path=${encodeURIComponent(path)}&options=${JSON.stringify({ encoding: "utf8" })}`, {
       method: 'GET'
