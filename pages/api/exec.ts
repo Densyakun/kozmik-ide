@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { execSync } from 'child_process';
 import { NextApiRequest, NextApiResponse } from "next";
 import { withIronSessionApiRoute } from "iron-session/next";
 import { sessionOptions } from "../../lib/session";
@@ -13,12 +13,9 @@ async function route(req: NextApiRequest, res: NextApiResponse<string>) {
     if (req.method === 'POST') {
       const command = req.body.command as string;
 
-      exec(command, (err, stdout, stderr) => {
-        res.send(err
-          ? `stderr: ${stderr}`
-          : `stdout: ${stdout}`
-        );
-      });
+      const stdout = execSync(command);
+
+      res.send(stdout.toString());
     }
   } catch (err) {
     res.status(400);
