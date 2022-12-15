@@ -4,6 +4,7 @@ import Head from 'next/head'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
 import CodeEditor from '../components/CodeEditor'
+import ExecForm from '../components/ExecForm'
 import FileExplorer from '../components/FileExplorer'
 import LoginForm from '../components/LoginForm'
 import LogoutButton from '../components/LogoutButton'
@@ -29,33 +30,30 @@ const Home: NextPage = () => {
 
   if (!user) return <></>
 
-  let body
-
-  if (user.isLoggedIn) {
-    body = <>
-      {(user.loginPasswordIsExist ?? false) &&
-        <LogoutButton />
-      }
-
-      <Container fixed>
-        <Stack spacing={2}>
-          <CodeEditorPathProvider>
-            <FileExplorer />
-            <CodeEditor />
-          </CodeEditorPathProvider>
-        </Stack>
-      </Container>
-    </>
-  } else
-    body = <LoginForm />
-
   return (
     <>
       <Head>
         <title>Kozmik IDE</title>
       </Head>
 
-      {body}
+      {user.isLoggedIn
+        ? <>
+          {(user.loginPasswordIsExist ?? false) &&
+            <LogoutButton />
+          }
+
+          <Container fixed>
+            <Stack spacing={2}>
+              <CodeEditorPathProvider>
+                <FileExplorer />
+                <CodeEditor />
+                <ExecForm />
+              </CodeEditorPathProvider>
+            </Stack>
+          </Container>
+        </>
+        : <LoginForm />
+      }
     </>
   )
 }
