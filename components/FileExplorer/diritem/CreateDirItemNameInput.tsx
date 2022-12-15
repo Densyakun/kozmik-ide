@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
 import { Dir } from '../../../pages/api/fs/dir';
+import { resolve } from 'path';
 
 type Inputs = {
   path: string;
@@ -24,15 +25,11 @@ export default function Form({
   } = useForm<Inputs>();
 
   const onSubmit = async (input: Inputs) => {
-    const path = encodeURIComponent(currentPath);
+    const path = encodeURIComponent(resolve(currentPath, input.path));
 
     if (isDirectory)
       fetch(`/api/fs/dir?path=${path}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ dirPath: input.path })
+        method: 'POST'
       })
         .then((response: Response) => {
           if (!response.ok) throw new Error('Network response was not OK');
@@ -48,11 +45,7 @@ export default function Form({
         });
     else
       fetch(`/api/fs/file?path=${path}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ filePath: input.path })
+        method: 'POST'
       })
         .then((response: Response) => {
           if (!response.ok) throw new Error('Network response was not OK');

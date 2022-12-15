@@ -2,13 +2,15 @@ import { useContext, useEffect, useState } from 'react';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { codeEditorPathContext } from '../pages';
+import SaveButton from './SaveButton';
+import { codeEditorPathContext } from '../../pages';
 
 export default function CodeEditor() {
   const path = useContext(codeEditorPathContext);
 
   const [loading, setLoading] = useState(!!path);
   const [value, setValue] = useState("");
+  const [dirty, setDirty] = useState(false);
 
   useEffect(() => {
     if (!path) return;
@@ -34,6 +36,7 @@ export default function CodeEditor() {
 
   function onChange(newValue: string) {
     setValue(newValue);
+    setDirty(true);
   }
 
   if (typeof window !== "undefined" && path) {
@@ -48,7 +51,25 @@ export default function CodeEditor() {
         </Typography>
         <Typography variant="subtitle1">
           {path}
+          {dirty && "*"}
         </Typography>
+        {!loading && <SaveButton onClick={async () => {
+          fetch(`/api/fs/file?path=${encodeURIComponent(path)}&options=${JSON.stringify({ encoding: "utf8" })}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ data: value })
+          })
+            .then((response: Response) => {
+              if (!response.ok) throw new Error('Network response was not OK');
+
+              setDirty(false);
+            })
+            .catch(error => {
+              console.error(error);
+            });
+        }} />}
       </Stack>
       {loading
         ? <Skeleton

@@ -1,4 +1,3 @@
-import { resolve } from "path";
 import { NextApiRequest, NextApiResponse } from "next";
 import { readFile, writeFile } from "fs-extra";
 import { withIronSessionApiRoute } from "iron-session/next";
@@ -12,17 +11,19 @@ async function route(req: NextApiRequest, res: NextApiResponse<string>) {
 
   try {
     const path = decodeURIComponent(req.query.path as string);
+    const options = (typeof req.query.options === 'string'
+      ? JSON.parse(req.query.options as string)
+      : {}
+    ) as { flag?: string | undefined } | { encoding: string, flag?: string | undefined };
 
     if (req.method === 'GET') {
-      const options = JSON.parse(req.query.options as string);
-
-      const data = await readFile(path, options as { flag?: string | undefined } | { encoding: string, flag?: string | undefined });
+      const data = await readFile(path, options);
 
       res.send(data);
     } else if (req.method === 'POST') {
-      const filePath = req.body.filePath as string;
+      const data = req.body.data as string | undefined;
 
-      await writeFile(resolve(path, filePath), "");
+      await writeFile(path, data || "", options);
 
       res.end();
     }

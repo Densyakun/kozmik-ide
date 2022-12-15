@@ -1,4 +1,3 @@
-import { resolve } from 'path';
 import { NextApiRequest, NextApiResponse } from "next";
 import { mkdir, readdir } from 'fs-extra';
 import { withIronSessionApiRoute } from "iron-session/next";
@@ -28,9 +27,7 @@ async function route(req: NextApiRequest, res: NextApiResponse<Dir | string>) {
         isSymbolicLink: file.isSymbolicLink()
       })));
     } else if (req.method === 'POST') {
-      const dirPath = req.body.dirPath as string;
-
-      await mkdir(resolve(path, dirPath));
+      await mkdir(path);
 
       res.end();
     }
