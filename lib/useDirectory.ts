@@ -1,10 +1,10 @@
 import useSWR, { BareFetcher } from "swr";
-import { Dir } from "../pages/api/dir";
+import { Dir } from "../pages/api/fs/dir";
 
 const fetcher: BareFetcher<Dir> = url => fetch(url).then(r => r.json())
 
 export default function useDirectory(path: string) {
-  const { data, error, mutate } = useSWR<Dir>(`/api/dir?path=${encodeURIComponent(path)}`, fetcher)
+  const { data, error, mutate } = useSWR<Dir>(`/api/fs/dir?path=${encodeURIComponent(path)}`, fetcher)
 
   return {
     items: data ?? [],

@@ -4,7 +4,6 @@ import Alert from '@mui/material/Alert';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
 import Skeleton from '@mui/material/Skeleton';
 import FolderIcon from '@mui/icons-material/Folder';
 import LinkIcon from '@mui/icons-material/Link';
@@ -12,7 +11,7 @@ import CreateDirItemNameInput from './diritem/CreateDirItemNameInput';
 import DirItemNameInput from './diritem/DirItemNameInput';
 import DirItemMenu from './diritem/DirItemMenu';
 import useDirectory from '../lib/useDirectory';
-import { Dir } from '../pages/api/dir';
+import { Dir } from '../pages/api/fs/dir';
 
 function renderRow(props: ListChildComponentProps<{
   items: { item: Dir[number], element: JSX.Element }[],
@@ -43,7 +42,13 @@ function renderRow(props: ListChildComponentProps<{
   );
 }
 
-export default function Directory({ path, onClick }: { path: string, onClick: (name: string) => void }) {
+export default function Directory({
+  path,
+  onClick
+}: {
+  path: string,
+  onClick: (name: string) => void
+}) {
   let { items, isLoading, isError, mutate } = useDirectory(path);
 
   if (isLoading) return <Skeleton

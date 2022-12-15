@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
-import { Dir } from '../../pages/api/dir';
+import { Dir } from '../../pages/api/fs/dir';
 
 type Inputs = {
   path: string;
@@ -27,14 +27,14 @@ export default function Form({
     const path = encodeURIComponent(currentPath);
 
     if (isDirectory)
-      fetch(`/api/dir?path=${path}`, {
+      fetch(`/api/fs/dir?path=${path}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ filePath: input.path })
       })
-        .then((response: any) => {
+        .then((response: Response) => {
           if (!response.ok) throw new Error('Network response was not OK');
 
           setDirItems([...dirItems, {
@@ -47,14 +47,14 @@ export default function Form({
           console.error(error);
         });
     else
-      fetch(`/api/file?path=${path}`, {
+      fetch(`/api/fs/file?path=${path}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ filePath: input.path })
       })
-        .then((response: any) => {
+        .then((response: Response) => {
           if (!response.ok) throw new Error('Network response was not OK');
 
           setDirItems([...dirItems, {

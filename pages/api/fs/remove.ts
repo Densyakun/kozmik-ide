@@ -1,0 +1,31 @@
+import { NextApiRequest, NextApiResponse } from "next";
+import { remove } from "fs-extra";
+import { withIronSessionApiRoute } from "iron-session/next";
+import { sessionOptions } from "../../../lib/session";
+
+export default withIronSessionApiRoute(route, sessionOptions);
+
+async function route(req: NextApiRequest, res: NextApiResponse<string>) {
+  if (process.env.LOGIN_PASSWORD && !req.session.user)
+    return res.status(401).end();
+
+  try {
+    const path = decodeURIComponent(req.query.path as string);
+
+    if (req.method === 'POST') {
+      await remove(path);
+
+      res.end();
+    }
+  } catch (err) {
+    res.status(400);
+
+    if (err instanceof Error)
+      return res.send(err.message);
+    else if (typeof err === 'string')
+      return res.send(err);
+
+    console.error(err);
+    return res.end();
+  }
+}

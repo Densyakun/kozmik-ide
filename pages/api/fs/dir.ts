@@ -1,8 +1,8 @@
 import { resolve } from 'path';
 import { NextApiRequest, NextApiResponse } from "next";
-import { mkdir, readdir, remove, rename } from 'fs-extra';
+import { mkdir, readdir } from 'fs-extra';
 import { withIronSessionApiRoute } from "iron-session/next";
-import { sessionOptions } from "../../lib/session";
+import { sessionOptions } from "../../../lib/session";
 
 export type Dir = {
   name: string;
@@ -31,16 +31,6 @@ async function route(req: NextApiRequest, res: NextApiResponse<Dir | string>) {
       const filePath = decodeURIComponent(req.body.filePath as string);
 
       await mkdir(resolve(path, filePath));
-
-      res.end();
-    } else if (req.method === 'PUT') {
-      const newPath = decodeURIComponent(req.body.newPath as string);
-
-      await rename(path, newPath);
-
-      res.end();
-    } else if (req.method === 'DELETE') {
-      await remove(path);
 
       res.end();
     }

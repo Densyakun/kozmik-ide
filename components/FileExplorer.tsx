@@ -1,5 +1,6 @@
 import path from 'path';
 import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import CurrentPathInput from './CurrentPathInput';
 import Directory from "./Directory";
 import ParentDirectoryButton from './ParentDirectoryButton';
@@ -15,6 +16,9 @@ export default function FileExplorer() {
 
   return <>
     <Stack spacing={2}>
+      <Typography variant="h6">
+        File explorer
+      </Typography>
       <Stack direction="row" alignItems="center" spacing={2}>
         <ParentDirectoryButton currentPath={currentPath} setCurrentPath={setCurrentPath} />
         <CurrentPathInput defaultValue={currentPath} setCurrentPath={setCurrentPath} />
