@@ -4,7 +4,7 @@ import Head from 'next/head'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
 import CodeEditor from '../components/CodeEditor'
-import ExecForm from '../components/ExecForm'
+import ExecShellCommandForm from '../components/ExecShellCommandForm'
 import FileExplorer from '../components/FileExplorer'
 import LoginForm from '../components/LoginForm'
 import LogoutButton from '../components/LogoutButton'
@@ -47,7 +47,7 @@ const Home: NextPage = () => {
               <CodeEditorPathProvider>
                 <FileExplorer />
                 <CodeEditor />
-                <ExecForm />
+                <ExecShellCommandForm />
               </CodeEditorPathProvider>
             </Stack>
           </Container>
