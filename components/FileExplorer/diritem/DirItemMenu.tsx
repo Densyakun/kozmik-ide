@@ -1,29 +1,27 @@
-import { Dispatch, SetStateAction, useContext, useState } from 'react';
+import { useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import deleteButton from './menuitem/deleteButton';
 import editCodeButton from './menuitem/editCodeButton';
-import { setCodeEditorPathContext } from '../../../pages';
 import { Dir } from '../../../pages/api/fs/dir';
 
-export type Button = {
+export type ButtonElementProps = {
+  handleClose: () => void,
+  path: string,
+  item: Dir[number],
+  dirItems: Dir,
+  setDirItems: (dirItems: Dir) => void
+};
+
+export type MenuButton = {
   text: string,
   icon?: typeof JSX.Element,
-  onClick: (
-    path: string,
-    item: Dir[number],
-    dirItems: Dir,
-    setDirItems: (dirItems: Dir) => void,
-    setCodeEditorPath: Dispatch<SetStateAction<string>>
-  ) => void,
+  Element: (props: ButtonElementProps) => JSX.Element,
   filter?: (item: Dir[number]) => boolean
 };
 
-const actions: Button[] = [
+const actions: MenuButton[] = [
   editCodeButton,
   deleteButton,
 ];
@@ -50,21 +48,9 @@ export default function LongMenu({
     setAnchorEl(null);
   };
 
-  const setCodeEditorPath = useContext(setCodeEditorPathContext);
-
   const actionItems = actions
     .filter(action => action.filter ? action.filter(item) : true)
-    .map(action => (
-      <MenuItem key={action.text} onClick={() => {
-        action.onClick(path, item, dirItems, setDirItems, setCodeEditorPath);
-        handleClose();
-      }}>
-        <ListItemIcon>
-          {action.icon && <action.icon fontSize="small" />}
-        </ListItemIcon>
-        <ListItemText>{action.text}</ListItemText>
-      </MenuItem>
-    ));
+    .map(action => <action.Element key={action.text} handleClose={handleClose} path={path} item={item} dirItems={dirItems} setDirItems={setDirItems} />);
 
   return (
     <div>
