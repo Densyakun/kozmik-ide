@@ -1,9 +1,21 @@
-import { useContext, useEffect, useState } from 'react';
+import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useEffect, useState } from 'react';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import SaveButton from './SaveButton';
-import { codeEditorPathContext } from '../../pages';
+
+const codeEditorPathContext = createContext("");
+export const setCodeEditorPathContext = createContext<Dispatch<SetStateAction<string>>>(() => undefined);
+
+export const Provider = ({ children }: { children: ReactNode }) => {
+  const [codeEditorPath, setCodeEditorPath] = useState("");
+
+  return <codeEditorPathContext.Provider value={codeEditorPath}>
+    <setCodeEditorPathContext.Provider value={setCodeEditorPath}>
+      {children}
+    </setCodeEditorPathContext.Provider>
+  </codeEditorPathContext.Provider>;
+};
 
 export default function CodeEditor() {
   const path = useContext(codeEditorPathContext);
