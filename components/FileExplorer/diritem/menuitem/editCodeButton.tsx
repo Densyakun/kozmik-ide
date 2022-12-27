@@ -3,8 +3,8 @@ import MenuItem from '@mui/material/MenuItem'
 import ListItemText from '@mui/material/ListItemText'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import CodeIcon from '@mui/icons-material/Code'
+import { ButtonElementProps, MenuButton } from '../ItemMenu'
 import { setCodeEditorPathContext } from '../../../CodeEditor'
-import { ButtonElementProps, MenuButton } from '../../../FileExplorer/diritem/DirItemMenu'
 
 const text = 'Edit code'
 

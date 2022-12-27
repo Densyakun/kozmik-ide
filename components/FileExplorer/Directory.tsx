@@ -7,9 +7,9 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import Skeleton from '@mui/material/Skeleton';
 import FolderIcon from '@mui/icons-material/Folder';
 import LinkIcon from '@mui/icons-material/Link';
-import CreateDirItemNameInput from './diritem/CreateDirItemNameInput';
-import DirItemNameInput from './diritem/DirItemNameInput';
-import DirItemMenu from './diritem/DirItemMenu';
+import CreateItemNameInput from './diritem/CreateItemNameInput';
+import DirItemNameInput from './diritem/ItemNameInput';
+import ItemMenu from './diritem/ItemMenu';
 import useDirectory from '../../lib/useDirectory';
 import { Dir } from '../../pages/api/fs/dir';
 
@@ -37,7 +37,7 @@ function renderRow(props: ListChildComponentProps<{
         </ListItemIcon>
       </ListItemButton>
       {element}
-      {item.name && <DirItemMenu path={resolve(currentPath, item.name)} item={item} dirItems={dirItems} setDirItems={setDirItems} />}
+      {item.name && <ItemMenu path={resolve(currentPath, item.name)} item={item} dirItems={dirItems} setDirItems={setDirItems} />}
     </ListItem>
   );
 }
@@ -67,12 +67,12 @@ export default function Directory({
     ...directories,
     {
       item: { name: "", isSymbolicLink: false, isDirectory: true },
-      element: <CreateDirItemNameInput currentPath={path} isDirectory={true} dirItems={items} setDirItems={mutate} />
+      element: <CreateItemNameInput currentPath={path} isDirectory={true} dirItems={items} setDirItems={mutate} />
     },
     ...files,
     {
       item: { name: "", isSymbolicLink: false, isDirectory: false },
-      element: <CreateDirItemNameInput currentPath={path} isDirectory={false} dirItems={items} setDirItems={mutate} />
+      element: <CreateItemNameInput currentPath={path} isDirectory={false} dirItems={items} setDirItems={mutate} />
     }
   ];
 

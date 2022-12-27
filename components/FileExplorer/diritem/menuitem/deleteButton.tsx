@@ -2,7 +2,7 @@ import MenuItem from '@mui/material/MenuItem'
 import ListItemText from '@mui/material/ListItemText'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import DeleteIcon from '@mui/icons-material/Delete'
-import { ButtonElementProps, MenuButton } from '../DirItemMenu'
+import { ButtonElementProps, MenuButton } from '../ItemMenu'
 
 const text = 'Delete'
 
