@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -17,7 +18,9 @@ export default function Form({ defaultValue, setCurrentPath }: { defaultValue: s
     setCurrentPath(data.currentDirectoryPath);
   };
 
-  setValue("currentDirectoryPath", defaultValue);
+  useEffect(() => {
+    setValue("currentDirectoryPath", defaultValue);
+  }, [defaultValue]);
 
   return (
     <>

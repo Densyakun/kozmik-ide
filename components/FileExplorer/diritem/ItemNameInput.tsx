@@ -1,4 +1,5 @@
 import { resolve } from 'path';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
@@ -50,7 +51,9 @@ export default function Form({
       });
   };
 
-  setValue("path", item.name);
+  useEffect(() => {
+    setValue("path", item.name);
+  }, [item.name]);
 
   return (
     <>
