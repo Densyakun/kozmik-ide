@@ -19,7 +19,8 @@ async function route(req: NextApiRequest, res: NextApiResponse<string>) {
     if (req.method === 'GET') {
       const data = await readFile(path, options);
 
-      res.send(data);
+      // Return data in JSON format so that file data and errors can be detected by JSON strings
+      res.json(JSON.stringify({ data }));
     } else if (req.method === 'POST') {
       const data = req.body.data as string | undefined;
 
@@ -31,9 +32,9 @@ async function route(req: NextApiRequest, res: NextApiResponse<string>) {
     res.status(400);
 
     if (err instanceof Error)
-      return res.send(err.message);
+      return res.json(JSON.stringify({ error: { Error: err, message: err.message } }));
     else if (typeof err === 'string')
-      return res.send(err);
+      return res.json(JSON.stringify({ error: err }));
 
     console.error(err);
     return res.end();

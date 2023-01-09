@@ -3,7 +3,8 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
-import CodeEditor, { Provider } from '../components/CodeEditor'
+import CodeEditor, { Provider as CodeEditorProvider } from '../components/CodeEditor'
+import DirectoryComponentEditor, { Provider as DirectoryComponentEditorProvider } from '../DirectoryComponentEditor'
 import ExecShellCommandForm from '../components/ExecShellCommandForm'
 import FileExplorer from '../components/FileExplorer'
 import LoginForm from '../components/LoginForm'
@@ -15,12 +16,14 @@ const Home: NextPage = () => {
 
   let children = <>
     <FileExplorer />
-    <CodeEditor />
     <ExecShellCommandForm />
+    <CodeEditor />
+    <DirectoryComponentEditor.Component />
   </>
 
   const providers: FC<{ children: ReactNode }>[] = [
-    Provider
+    CodeEditorProvider,
+    DirectoryComponentEditorProvider
   ]
   providers.forEach(Provider => children = <Provider>{children}</Provider>)
 
