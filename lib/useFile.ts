@@ -1,4 +1,5 @@
 import useSWR, { BareFetcher } from "swr"
+import errorMap from "serverfailsoft/errorMap.json"
 
 const fetcher: BareFetcher<string> = url => fetch(url)
   .then(async (response: Response) => {
@@ -11,9 +12,11 @@ const fetcher: BareFetcher<string> = url => fetch(url)
     }
 
     if (!response.ok) {
-      throw jsonData && jsonData.error
-        ? JSON.stringify(jsonData.error)
-        : new Error('Network response was not OK')
+      throw response.status === errorMap["ENOENT"]
+        ? new Error("ENOENT")
+        : jsonData !== undefined
+          ? jsonData.error
+          : new Error('Network response was not OK')
     }
 
     return jsonData && jsonData.data

@@ -22,6 +22,7 @@ specifiers:
   react-dom: 18.2.0
   react-hook-form: ^7.39.4
   react-window: ^1.8.8
+  serverfailsoft: ^2.1.1
   swr: ^1.3.0
   typescript: 4.8.4
 
@@ -45,6 +46,7 @@ dependencies:
   react-dom: 18.2.0_react@18.2.0
   react-hook-form: 7.39.4_react@18.2.0
   react-window: 1.8.8_biqbaboplfbrettd7655fr4n2y
+  serverfailsoft: 2.1.1
   swr: 1.3.0_react@18.2.0
   typescript: 4.8.4
 
@@ -2618,6 +2620,10 @@ packages:
     hasBin: true
     dependencies:
       lru-cache: 6.0.0
+    dev: false
+
+  /serverfailsoft/2.1.1:
+    resolution: {integrity: sha512-HIt3LDYmyt5ZHUtcyvDmNnNfV5XYOEw4qvsVji1x3ltLwOaKMVGFzybURGUXO5+FNqOn/5sZS2lSBKphisBD+g==}
     dev: false
 
   /shebang-command/2.0.0:

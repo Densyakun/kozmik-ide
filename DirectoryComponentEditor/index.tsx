@@ -28,21 +28,23 @@ function Component() {
 
   let body = <></>;
 
+  let isNextJSApp = false;
+
   if (loading)
     body = <Skeleton
       width={'100%'}
       height={400}
     />;
-  else if (error)
+  else if (error && !(error.message && error.message === "ENOENT"))
     body = <Alert severity="error">failed to load: {error.toString()}</Alert>;
   else {
-    let isNextJSApp = false;
-
-    try {
-      const packageJSON = JSON.parse(data);
-      isNextJSApp = packageJSON.scripts && packageJSON.scripts["dev"] !== undefined
-        && packageJSON.dependencies && packageJSON.dependencies["next"] !== undefined && packageJSON.dependencies["react"] !== undefined && packageJSON.dependencies["react-dom"] !== undefined;
-    } catch (e) { }
+    if (!error) {
+      try {
+        const packageJSON = JSON.parse(data);
+        isNextJSApp = packageJSON.scripts && packageJSON.scripts["dev"] !== undefined
+          && packageJSON.dependencies && packageJSON.dependencies["next"] !== undefined && packageJSON.dependencies["react"] !== undefined && packageJSON.dependencies["react-dom"] !== undefined;
+      } catch (e) { }
+    }
 
     body = <>
       {isNextJSApp.toString()}
