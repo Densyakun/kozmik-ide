@@ -62,7 +62,6 @@ function Component() {
       </Typography>
       <Typography variant="subtitle1">
         {path}
-        {dirty && "*"}
       </Typography>
     </Stack>
     {body}
