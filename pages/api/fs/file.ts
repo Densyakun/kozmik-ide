@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { readFile, writeFile } from "fs-extra";
 import { withIronSessionApiRoute } from "iron-session/next";
 import { sessionOptions } from "../../../lib/session";
-import errorMap from "serverfailsoft/errorMap.json";
+import errorMap from "../../../lib/errorMap";
 
 export default withIronSessionApiRoute(route, sessionOptions);
 
@@ -30,15 +30,13 @@ async function route(req: NextApiRequest, res: NextApiResponse<{ data: string } 
       res.end();
     }
   } catch (err) {
-    try {
-      res.status((errorMap as any)[(err as any).code as string] || 500);
-    } catch (e) {
-      res.status(500);
-    }
+    res.status(500);
 
-    if (err instanceof Error)
-      return res.json({ error: err.message });
-    else if (typeof err === 'string')
+    if (err instanceof Error) {
+      res.status(errorMap[(err as any).code as string] ?? 500);
+
+      return res.json({ error: (err as any).code || err.message });
+    } else if (typeof err === 'string')
       return res.json({ error: err });
 
     console.error(err);
