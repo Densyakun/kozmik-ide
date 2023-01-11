@@ -35,11 +35,11 @@ export default function CodeEditor() {
       .then((response: Response) => {
         if (!response.ok) throw new Error('Network response was not OK');
 
-        return response.text();
+        return response.json();
       })
-      .then(data => {
+      .then(json => {
         setLoading(false);
-        setValue(data);
+        setValue(json.data);
       })
       .catch(error => {
         console.error(error);

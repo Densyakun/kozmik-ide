@@ -5,21 +5,14 @@ const fetcher: BareFetcher<string> = url => fetch(url)
   .then(async (response: Response) => {
     const json = await response.json()
 
-    let jsonData = undefined
-    try {
-      jsonData = JSON.parse(json)
-    } catch (e) {
-    }
-
     if (!response.ok) {
       throw response.status === errorMap["ENOENT"]
         ? new Error("ENOENT")
-        : jsonData !== undefined
-          ? jsonData.error
-          : new Error('Network response was not OK')
+        : json && json.error
+        || new Error('Network response was not OK')
     }
 
-    return jsonData && jsonData.data
+    return json && json.data
   })
 
 export default function useDirectory(path: string) {

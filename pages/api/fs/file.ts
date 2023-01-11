@@ -6,7 +6,7 @@ import errorMap from "serverfailsoft/errorMap.json";
 
 export default withIronSessionApiRoute(route, sessionOptions);
 
-async function route(req: NextApiRequest, res: NextApiResponse<string>) {
+async function route(req: NextApiRequest, res: NextApiResponse<{ data: string } | { error: any }>) {
   if (process.env.LOGIN_PASSWORD && !req.session.user)
     return res.status(401).end();
 
@@ -20,8 +20,8 @@ async function route(req: NextApiRequest, res: NextApiResponse<string>) {
     if (req.method === 'GET') {
       const data = await readFile(path, options);
 
-      // Return data in JSON format so that file data and errors can be detected by JSON strings
-      res.json(JSON.stringify({ data }));
+      // Return data in JSON format so that file data and errors can be detected
+      res.json({ data });
     } else if (req.method === 'POST') {
       const data = req.body.data as string | undefined;
 
@@ -37,11 +37,11 @@ async function route(req: NextApiRequest, res: NextApiResponse<string>) {
     }
 
     if (err instanceof Error)
-      return res.json(JSON.stringify({ error: err.message }));
+      return res.json({ error: err.message });
     else if (typeof err === 'string')
-      return res.json(JSON.stringify({ error: err }));
+      return res.json({ error: err });
 
     console.error(err);
-    return res.end();
+    res.end();
   }
 }
