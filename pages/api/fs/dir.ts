@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { mkdir, readdir } from 'fs-extra';
 import { withIronSessionApiRoute } from "iron-session/next";
 import { sessionOptions } from "../../../lib/session";
+import errorMap from "../../../lib/errorMap";
 
 export type DirItem = {
   name: string;
@@ -11,7 +12,7 @@ export type DirItem = {
 
 export default withIronSessionApiRoute(route, sessionOptions);
 
-async function route(req: NextApiRequest, res: NextApiResponse<DirItem[] | string>) {
+async function route(req: NextApiRequest, res: NextApiResponse<{ items: DirItem[] } | { error: string }>) {
   if (process.env.LOGIN_PASSWORD && !req.session.user)
     return res.status(401).end();
 
@@ -19,27 +20,31 @@ async function route(req: NextApiRequest, res: NextApiResponse<DirItem[] | strin
     const path = decodeURIComponent(req.query.path as string);
 
     if (req.method === 'GET') {
-      const files = await readdir(path, { withFileTypes: true });
+      const dirents = await readdir(path, { withFileTypes: true });
 
-      res.json(files.map(file => ({
-        name: file.name,
-        isDirectory: file.isDirectory(),
-        isSymbolicLink: file.isSymbolicLink()
-      })));
+      res.json({
+        items: dirents.map(file => ({
+          name: file.name,
+          isDirectory: file.isDirectory(),
+          isSymbolicLink: file.isSymbolicLink()
+        }))
+      });
     } else if (req.method === 'POST') {
       await mkdir(path);
 
       res.end();
     }
   } catch (err) {
-    res.status(400);
+    res.status(500);
 
-    if (err instanceof Error)
-      return res.send(err.message);
-    else if (typeof err === 'string')
-      return res.send(err);
+    if (err instanceof Error) {
+      res.status(errorMap[(err as any).code as string] ?? 500);
+
+      return res.json({ error: (err as any).code || err.message });
+    } else if (typeof err === 'string')
+      return res.json({ error: err });
 
     console.error(err);
-    return res.end();
+    res.end();
   }
 }

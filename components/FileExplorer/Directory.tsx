@@ -49,13 +49,13 @@ export default function Directory({
   path: string,
   onClick: (name: string) => void
 }) {
-  let { items, isLoading, isError, mutate } = useDirectory(path);
+  let { items, isLoading, error, mutate } = useDirectory(path);
 
   if (isLoading) return <Skeleton
     width={'100%'}
     height={400}
   />;
-  if (isError) return <Alert severity="error">failed to load.</Alert>;
+  if (error) return <Alert severity="error">failed to load: {error.toString()}</Alert>;
 
   let directories: { item: DirItem, element: JSX.Element }[] = [];
   let files: { item: DirItem, element: JSX.Element }[] = [];
