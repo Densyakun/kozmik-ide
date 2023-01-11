@@ -11,14 +11,14 @@ import CreateItemNameInput from './diritem/CreateItemNameInput';
 import DirItemNameInput from './diritem/ItemNameInput';
 import ItemMenu from './diritem/ItemMenu';
 import useDirectory from '../../lib/useDirectory';
-import { Dir } from '../../pages/api/fs/dir';
+import { DirItem } from '../../pages/api/fs/dir';
 
 function renderRow(props: ListChildComponentProps<{
-  items: { item: Dir[number], element: JSX.Element }[],
+  items: { item: DirItem, element: JSX.Element }[],
   onClick: (name: string) => void,
   currentPath: string,
-  dirItems: Dir,
-  setDirItems: (diritems: Dir) => void
+  dirItems: DirItem[],
+  setDirItems: (diritems: DirItem[]) => void
 }>) {
   const { data: { items, onClick, currentPath, dirItems, setDirItems }, index, style } = props;
   const { item, element } = items[index];
@@ -57,13 +57,13 @@ export default function Directory({
   />;
   if (isError) return <Alert severity="error">failed to load.</Alert>;
 
-  let directories: { item: Dir[number], element: JSX.Element }[] = [];
-  let files: { item: Dir[number], element: JSX.Element }[] = [];
+  let directories: { item: DirItem, element: JSX.Element }[] = [];
+  let files: { item: DirItem, element: JSX.Element }[] = [];
   items.forEach(item => item.isDirectory || item.isSymbolicLink
     ? directories.push({ item, element: <DirItemNameInput currentPath={path} item={item} dirItems={items} setDirItems={mutate} /> })
     : files.push({ item, element: <DirItemNameInput currentPath={path} item={item} dirItems={items} setDirItems={mutate} /> }));
 
-  const items1: { item: Dir[number], element: JSX.Element }[] = [
+  const items1: { item: DirItem, element: JSX.Element }[] = [
     ...directories,
     {
       item: { name: "", isSymbolicLink: false, isDirectory: true },

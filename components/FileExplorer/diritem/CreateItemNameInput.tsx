@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
-import { Dir } from '../../../pages/api/fs/dir';
+import { DirItem } from '../../../pages/api/fs/dir';
 import { resolve } from 'path';
 
 type Inputs = {
@@ -16,8 +16,8 @@ export default function Form({
 }: {
   currentPath: string,
   isDirectory: boolean,
-  dirItems: Dir,
-  setDirItems: (dirItems: Dir) => void
+  dirItems: DirItem[],
+  setDirItems: (dirItems: DirItem[]) => void
 }) {
   const {
     register,

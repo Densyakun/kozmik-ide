@@ -5,21 +5,21 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import deleteButton from './menuitem/deleteButton';
 import editCodeButton from '../../CodeEditor/editCodeButton';
 import openDirectoryComponentEditorButton from '../../../DirectoryComponentEditor/openEditorButton';
-import { Dir } from '../../../pages/api/fs/dir';
+import { DirItem } from '../../../pages/api/fs/dir';
 
 export type ButtonElementProps = {
   handleClose: () => void,
   path: string,
-  item: Dir[number],
-  dirItems: Dir,
-  setDirItems: (dirItems: Dir) => void
+  item: DirItem,
+  dirItems: DirItem[],
+  setDirItems: (dirItems: DirItem[]) => void
 };
 
 export type MenuButton = {
   text: string,
   icon?: typeof JSX.Element,
   Element: (props: ButtonElementProps) => JSX.Element,
-  filter?: (item: Dir[number]) => boolean
+  filter?: (item: DirItem) => boolean
 };
 
 const actions: MenuButton[] = [
@@ -37,9 +37,9 @@ export default function LongMenu({
   setDirItems
 }: {
   path: string,
-  item: Dir[number],
-  dirItems: Dir,
-  setDirItems: (dirItems: Dir) => void
+  item: DirItem,
+  dirItems: DirItem[],
+  setDirItems: (dirItems: DirItem[]) => void
 }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);

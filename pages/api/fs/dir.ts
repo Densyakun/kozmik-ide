@@ -3,15 +3,15 @@ import { mkdir, readdir } from 'fs-extra';
 import { withIronSessionApiRoute } from "iron-session/next";
 import { sessionOptions } from "../../../lib/session";
 
-export type Dir = {
+export type DirItem = {
   name: string;
   isDirectory: boolean;
   isSymbolicLink: boolean;
-}[];
+};
 
 export default withIronSessionApiRoute(route, sessionOptions);
 
-async function route(req: NextApiRequest, res: NextApiResponse<Dir | string>) {
+async function route(req: NextApiRequest, res: NextApiResponse<DirItem[] | string>) {
   if (process.env.LOGIN_PASSWORD && !req.session.user)
     return res.status(401).end();
 
