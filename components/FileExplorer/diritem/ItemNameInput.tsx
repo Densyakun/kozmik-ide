@@ -53,7 +53,7 @@ export default function Form({
 
   useEffect(() => {
     setValue("path", item.name);
-  }, [item.name]);
+  }, [item.name, setValue]);
 
   return (
     <>

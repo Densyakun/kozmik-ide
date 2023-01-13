@@ -20,7 +20,7 @@ export default function Form({ defaultValue, setCurrentPath }: { defaultValue: s
 
   useEffect(() => {
     setValue("currentDirectoryPath", defaultValue);
-  }, [defaultValue]);
+  }, [defaultValue, setValue]);
 
   return (
     <>
