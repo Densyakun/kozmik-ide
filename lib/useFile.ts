@@ -10,8 +10,8 @@ const fetcher: BareFetcher<string> = url => fetch(url)
     return json && json.data
   })
 
-export default function useDirectory(path: string) {
-  const { data, error, mutate } = useSWR<string>(`/api/fs/file?path=${encodeURIComponent(path)}&options=${JSON.stringify({ encoding: "utf8" })}`, fetcher)
+export default function useFile(path: string) {
+  const { data, error, mutate } = useSWR<string>(path && `/api/fs/file?path=${encodeURIComponent(path)}&options=${JSON.stringify({ encoding: "utf8" })}`, fetcher)
 
   return {
     data: data || "",

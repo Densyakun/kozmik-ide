@@ -12,7 +12,7 @@ const fetcher: BareFetcher<DirItem[]> = url => fetch(url)
   })
 
 export default function useDirectory(path: string) {
-  const { data, error, mutate } = useSWR<DirItem[]>(`/api/fs/dir?path=${encodeURIComponent(path)}`, fetcher)
+  const { data, error, mutate } = useSWR<DirItem[]>(path && `/api/fs/dir?path=${encodeURIComponent(path)}`, fetcher)
 
   return {
     items: data ?? [],
