@@ -4,6 +4,7 @@ import Head from 'next/head'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
 import CodeEditor, { Provider as CodeEditorProvider } from '../components/CodeEditor'
+import FileComponentEditor, { Provider as FileComponentEditorProvider } from '../FileComponentEditor'
 import DirectoryComponentEditor, { Provider as DirectoryComponentEditorProvider } from '../DirectoryComponentEditor'
 import ExecShellCommandForm from '../components/ExecShellCommandForm'
 import FileExplorer from '../components/FileExplorer'
@@ -18,11 +19,13 @@ const Home: NextPage = () => {
     <FileExplorer />
     <ExecShellCommandForm />
     <CodeEditor />
+    <FileComponentEditor.Component />
     <DirectoryComponentEditor.Component />
   </>
 
   const providers: FC<{ children: ReactNode }>[] = [
     CodeEditorProvider,
+    FileComponentEditorProvider,
     DirectoryComponentEditorProvider
   ]
   providers.forEach(Provider => children = <Provider>{children}</Provider>)

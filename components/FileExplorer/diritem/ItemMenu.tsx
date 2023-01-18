@@ -4,6 +4,7 @@ import Menu from '@mui/material/Menu';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import deleteButton from './menuitem/deleteButton';
 import editCodeButton from '../../CodeEditor/editCodeButton';
+import openFileComponentEditorButton from '../../../FileComponentEditor/openEditorButton';
 import openDirectoryComponentEditorButton from '../../../DirectoryComponentEditor/openEditorButton';
 import { DirItem } from '../../../pages/api/fs/dir';
 
@@ -23,6 +24,7 @@ export type MenuButton = {
 };
 
 const actions: MenuButton[] = [
+  openFileComponentEditorButton,
   openDirectoryComponentEditorButton,
   editCodeButton,
   deleteButton,
