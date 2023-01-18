@@ -3,15 +3,15 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import SaveIcon from '@mui/icons-material/Save';
 
 export default function SaveButton({ onClick }: { onClick: () => Promise<void> }) {
-  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   return <LoadingButton
     onClick={async () => {
-      setLoading(true);
+      setSaving(true);
       await onClick();
-      setLoading(false);
+      setSaving(false);
     }}
-    loading={loading}
+    loading={saving}
     loadingPosition="start"
     startIcon={<SaveIcon />}
     variant="contained"

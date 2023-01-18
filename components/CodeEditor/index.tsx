@@ -2,7 +2,7 @@ import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useEffe
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import SaveButton from './SaveButton';
+import SaveButton from '../SaveButton';
 
 const codeEditorPathContext = createContext("");
 export const setCodeEditorPathContext = createContext<Dispatch<SetStateAction<string>>>(() => undefined);
