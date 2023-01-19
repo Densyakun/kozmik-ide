@@ -3,6 +3,7 @@ import Alert from '@mui/material/Alert';
 import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import { File } from "./file";
 import useFile from "../lib/useFile";
 
 const pathContext = createContext("");
@@ -28,6 +29,8 @@ function Component() {
     setLoading(!!path && isLoading);
   }, [path, isLoading]);
 
+  if (!path) return null;
+
   let body = <></>;
 
   if (loading)
@@ -38,9 +41,7 @@ function Component() {
   else if (error)
     body = <Alert severity="error">failed to load: {error.toString()}</Alert>;
   else
-    body = <>{data}</>;
-
-  if (!path) return null;
+    body = <File data={data} />;
 
   return <>
     <Stack direction="row" alignItems="center" spacing={2}>
@@ -51,6 +52,7 @@ function Component() {
         {path}
       </Typography>
     </Stack>
+
     {body}
   </>;
 }

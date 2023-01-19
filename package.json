@@ -30,7 +30,8 @@
     "react-window": "^1.8.8",
     "serverfailsoft": "^2.1.1",
     "swr": "^1.3.0",
-    "typescript": "4.8.4"
+    "typescript": "4.8.4",
+    "webpack-merge": "^5.8.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",
