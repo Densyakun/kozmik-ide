@@ -3,7 +3,8 @@ import Alert from '@mui/material/Alert';
 import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { File } from "./file";
+import { TSX } from "./tsx";
+import SaveButton from "../components/SaveButton";
 import useFile from "../lib/useFile";
 
 const pathContext = createContext("");
@@ -19,15 +20,40 @@ export const Provider = ({ children }: { children: ReactNode }) => {
   </pathContext.Provider>;
 };
 
+export function File({
+  data,
+  onChange
+}: {
+  data: string,
+  onChange: (newValue: string) => void
+}) {
+  return <TSX sourceText={data} onChange={onChange} />
+    ?? <>
+      (Empty file components)
+    </>;
+}
+
 function Component() {
   const path = useContext(pathContext);
 
   const [loading, setLoading] = useState(true);
-  let { data, isLoading, error } = useFile(path);
+  let { data: defaultData, isLoading, error, mutate: mutateDefaultValue } = useFile(path);
+  const [data, setData] = useState(defaultData);
+  const [dirty, setDirty] = useState(false);
 
   useEffect(() => {
     setLoading(!!path && isLoading);
   }, [path, isLoading]);
+
+  useEffect(() => {
+    setData(defaultData);
+    setDirty(false);
+  }, [defaultData]);
+
+  function onChange(newValue: string) {
+    setData(newValue);
+    setDirty(true);
+  }
 
   if (!path) return null;
 
@@ -41,7 +67,7 @@ function Component() {
   else if (error)
     body = <Alert severity="error">failed to load: {error.toString()}</Alert>;
   else
-    body = <File data={data} />;
+    body = <File data={defaultData} onChange={onChange} />;
 
   return <>
     <Stack direction="row" alignItems="center" spacing={2}>
@@ -50,7 +76,26 @@ function Component() {
       </Typography>
       <Typography variant="subtitle1">
         {path}
+        {dirty && "*"}
       </Typography>
+      <SaveButton onClick={async () => {
+        fetch(`/api/fs/file?path=${encodeURIComponent(path)}&options=${JSON.stringify({ encoding: "utf8" })}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ data })
+        })
+          .then((response: Response) => {
+            if (!response.ok) throw new Error('Network response was not OK');
+
+            //mutateDefaultValue(data);
+            setDirty(false);
+          })
+          .catch(error => {
+            console.error(error);
+          });
+      }} />
     </Stack>
 
     {body}
