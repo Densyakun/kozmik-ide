@@ -17,7 +17,7 @@ export type ButtonElementProps = {
 
 export type MenuButton = {
   text: string,
-  icon?: typeof JSX.Element,
+  icon?: JSX.Element,
   Element: (props: ButtonElementProps) => JSX.Element,
   filter?: (item: DirItem) => boolean
 };
