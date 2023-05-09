@@ -11,10 +11,14 @@ const button: MenuButton = {
   Element: ({ handleClose, path, item, dirItems, setDirItems }: ButtonElementProps) => {
     return <MenuItem onClick={() => {
       handleClose()
+      //ファイル消す時に確認する
+      var res = confirm(`Are you sure you want to delete ${item.name}?`)
 
-      fetch(`/api/fs/remove?path=${encodeURIComponent(path)}`, {
-        method: 'POST'
-      })
+      if(res == true){
+        fetch(`/api/fs/remove?path=${encodeURIComponent(path)}`, {
+          method: 'POST'
+        })
+
         .then((response: Response) => {
           if (!response.ok) throw new Error('Network response was not OK')
 
@@ -25,6 +29,14 @@ const button: MenuButton = {
         .catch((error) => {
           console.error(error)
         })
+      }
+
+      if(res == false){
+      alert("File not deleted") 
+
+        return
+      }
+        
     }}>
       <ListItemIcon>
         <DeleteIcon fontSize="small" />
