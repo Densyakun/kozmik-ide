@@ -11,20 +11,24 @@ const button: MenuButton = {
   Element: ({ handleClose, path, item, dirItems, setDirItems }: ButtonElementProps) => {
     return <MenuItem onClick={() => {
       handleClose()
+      // Displays a dialog box asking if you want to delete the file.
+      var res = confirm(`Are you sure you want to delete ${item.name}?`)
 
-      fetch(`/api/fs/remove?path=${encodeURIComponent(path)}`, {
-        method: 'POST'
-      })
-        .then((response: Response) => {
-          if (!response.ok) throw new Error('Network response was not OK')
-
-          dirItems.splice(dirItems.findIndex(item => item.name === item.name), 1)
-
-          setDirItems([...dirItems])
+      if (res) {
+        fetch(`/api/fs/remove?path=${encodeURIComponent(path)}`, {
+          method: 'POST'
         })
-        .catch((error) => {
-          console.error(error)
-        })
+          .then((response: Response) => {
+            if (!response.ok) throw new Error('Network response was not OK')
+
+            dirItems.splice(dirItems.findIndex(item => item.name === item.name), 1)
+
+            setDirItems([...dirItems])
+          })
+          .catch((error) => {
+            console.error(error)
+          })
+      }  
     }}>
       <ListItemIcon>
         <DeleteIcon fontSize="small" />
