@@ -5,6 +5,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import deleteButton from './menuitem/deleteButton';
 import editCodeButton from '../../CodeEditor/editCodeButton';
 import openDirectoryComponentEditorButton from '../../../DirectoryComponentEditor/openEditorButton';
+import openTSMorphEditorButton from '../../../TSMorphEditor/openEditorButton';
 import { DirItem } from '../../../pages/api/fs/dir';
 
 export type ButtonElementProps = {
@@ -23,6 +24,7 @@ export type MenuButton = {
 };
 
 const actions: MenuButton[] = [
+  openTSMorphEditorButton,
   openDirectoryComponentEditorButton,
   editCodeButton,
   deleteButton,
