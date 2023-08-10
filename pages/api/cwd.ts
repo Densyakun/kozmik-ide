@@ -10,7 +10,7 @@ async function route(req: NextApiRequest, res: NextApiResponse<string>) {
 
   try {
     if (req.method === 'GET') {
-      res.send(process.cwd());
+      res.status(200).end(process.cwd());
     }
   } catch (err) {
     res.status(400);

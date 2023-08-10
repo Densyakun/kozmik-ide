@@ -22,7 +22,7 @@ async function route(req: NextApiRequest, res: NextApiResponse<{ items: DirItem[
     if (req.method === 'GET') {
       const dirents = await readdir(path, { withFileTypes: true });
 
-      res.json({
+      res.status(200).json({
         items: dirents.map(file => ({
           name: file.name,
           isDirectory: file.isDirectory(),
@@ -32,7 +32,7 @@ async function route(req: NextApiRequest, res: NextApiResponse<{ items: DirItem[
     } else if (req.method === 'POST') {
       await mkdir(path);
 
-      res.end();
+      res.status(200).end();
     }
   } catch (err) {
     res.status(500);

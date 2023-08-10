@@ -21,13 +21,13 @@ async function route(req: NextApiRequest, res: NextApiResponse<{ data: string } 
       const data = await readFile(path, options);
 
       // Return data in JSON format so that file data and errors can be detected
-      res.json({ data });
+      res.status(200).json({ data });
     } else if (req.method === 'POST') {
       const data = req.body.data as string | undefined;
 
       await writeFile(path, data || "", options);
 
-      res.end();
+      res.status(200).end();
     }
   } catch (err) {
     res.status(500);

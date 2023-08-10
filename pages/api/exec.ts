@@ -15,7 +15,7 @@ async function route(req: NextApiRequest, res: NextApiResponse<string>) {
 
       const stdout = execSync(command);
 
-      res.send(stdout.toString());
+      res.status(200).end(stdout.toString());
     }
   } catch (err) {
     res.status(400);
