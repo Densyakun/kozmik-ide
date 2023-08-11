@@ -1,11 +1,45 @@
 import path from "path";
 import { errors } from "@ts-morph/common";
 import { FileSystemHost, RuntimeDirEntry } from "ts-morph";
-import { FileUtils } from "@ts-morph/common";
+import { FileUtils, StandardizedFilePath } from "@ts-morph/common";
 import { DirItem } from "@/pages/api/fs/dir";
 
+interface Directory {
+  path: StandardizedFilePath;
+  files: Set<StandardizedFilePath>;
+}
+
 export class KozmikFileSystemHost implements FileSystemHost {
+  /** @internal */
+  private readonly directories = new Map<StandardizedFilePath, Directory>();
+
   private currentDirectory?: string;
+
+  useDownloadedFilePaths = false;
+
+  async downloadOnInit(projectPath: string) {
+    this.useDownloadedFilePaths = true;
+
+    return fetch(`/api/fs/glob?patterns=["${path.join(projectPath, '**/*')}"]`, {
+      method: 'GET'
+    })
+      .then(async (response: Response) => {
+        if (!response.ok) throw new Error('Network response was not OK')
+
+        const json = await response.json();
+
+        const paths: string[] = json && json.paths as string[];
+
+        paths.forEach(path => {
+          const standardizedFilePath = FileUtils.getStandardizedAbsolutePath(this, path);
+          const dirPath = FileUtils.getDirPath(standardizedFilePath);
+          this.getOrCreateDir(dirPath).files.add(standardizedFilePath);
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
 
   /** @inheritdoc */
   async delete(path: string) {
@@ -33,26 +67,55 @@ export class KozmikFileSystemHost implements FileSystemHost {
 
   /** @inheritdoc */
   readDirSync(dirPath: string): RuntimeDirEntry[] {
-    try {
-      const request = new XMLHttpRequest();
-      request.open('GET', `/api/fs/dir?path=${encodeURIComponent(dirPath)}`, false);
-      request.send(null);
+    const standardizedDirPath = FileUtils.getStandardizedAbsolutePath(this, dirPath);
+    if (this.useDownloadedFilePaths) {
+      const dir = this.directories.get(standardizedDirPath);
+      if (dir != null)
+        return [
+          ...getDirectories(this.directories.keys()),
+          ...Array.from(dir.files.keys()).map(name => ({
+            name,
+            isDirectory: false,
+            isFile: true,
+            isSymlink: false,
+          })),
+        ];
 
-      if (request.status === 200) {
-        const json = JSON.parse(request.responseText);
-
-        const dirents: DirItem[] = json && json.items;
-
-        return dirents.map(file => ({
-          name: path.join(dirPath, file.name),
-          isDirectory: file.isDirectory,
-          isFile: !file.isDirectory,
-          isSymlink: file.isSymbolicLink
-        }));
+      function* getDirectories(dirPaths: IterableIterator<StandardizedFilePath>): Iterable<RuntimeDirEntry> {
+        for (const path of dirPaths) {
+          const parentDir = FileUtils.getDirPath(path);
+          if (parentDir === standardizedDirPath && parentDir !== path) {
+            yield {
+              name: path,
+              isDirectory: true,
+              isFile: false,
+              isSymlink: false,
+            };
+          }
+        }
       }
-    } catch { }
+    } else {
+      try {
+        const request = new XMLHttpRequest();
+        request.open('GET', `/api/fs/dir?path=${encodeURIComponent(dirPath)}`, false);
+        request.send(null);
 
-    throw new errors.DirectoryNotFoundError(FileUtils.getStandardizedAbsolutePath(this, dirPath));
+        if (request.status === 200) {
+          const json = JSON.parse(request.responseText);
+
+          const dirents: DirItem[] = json && json.items;
+
+          return dirents.map(file => ({
+            name: path.join(dirPath, file.name),
+            isDirectory: file.isDirectory,
+            isFile: !file.isDirectory,
+            isSymlink: file.isSymbolicLink
+          }));
+        }
+      } catch { }
+    }
+
+    throw new errors.DirectoryNotFoundError(standardizedDirPath);
   }
 
   /** @inheritdoc */
@@ -195,37 +258,54 @@ export class KozmikFileSystemHost implements FileSystemHost {
 
   /** @inheritdoc */
   async fileExists(filePath: string) {
-    return fetch(`/api/fs/exists?path=${encodeURIComponent(filePath)}`, {
-      method: 'GET'
-    })
-      .then(async (response: Response) => {
-        const json = await response.json();
+    if (this.useDownloadedFilePaths) {
+      const standardizedFilePath = FileUtils.getStandardizedAbsolutePath(this, filePath);
+      const dirPath = FileUtils.getDirPath(standardizedFilePath);
+      const dir = this.directories.get(dirPath);
+      if (dir == null)
+        return false;
 
-        if (!response.ok)
-          throw new Error(json && json.error || 'Network response was not OK');
-
-        return json && json.exists;
+      return dir.files.has(standardizedFilePath);
+    } else
+      return fetch(`/api/fs/exists?path=${encodeURIComponent(filePath)}`, {
+        method: 'GET'
       })
-      .catch(() => {
-        throw new errors.FileNotFoundError(FileUtils.getStandardizedAbsolutePath(this, filePath));
-      });
+        .then(async (response: Response) => {
+          const json = await response.json();
+
+          if (!response.ok)
+            throw new Error(json && json.error || 'Network response was not OK');
+
+          return json && json.exists;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
   }
 
   /** @inheritdoc */
   fileExistsSync(filePath: string) {
-    try {
-      const request = new XMLHttpRequest();
-      request.open('GET', `/api/fs/exists?path=${encodeURIComponent(filePath)}`, false);
-      request.send(null);
+    if (this.useDownloadedFilePaths) {
+      const standardizedFilePath = FileUtils.getStandardizedAbsolutePath(this, filePath);
+      const dirPath = FileUtils.getDirPath(standardizedFilePath);
+      const dir = this.directories.get(dirPath);
+      if (dir != null)
+        return dir.files.has(standardizedFilePath);
+    } else {
+      try {
+        const request = new XMLHttpRequest();
+        request.open('GET', `/api/fs/exists?path=${encodeURIComponent(filePath)}`, false);
+        request.send(null);
 
-      if (request.status === 200) {
-        const json = JSON.parse(request.responseText);
+        if (request.status === 200) {
+          const json = JSON.parse(request.responseText);
 
-        return json && json.exists;
-      }
-    } catch { }
+          return json && json.exists;
+        }
+      } catch { }
+    }
 
-    throw new errors.FileNotFoundError(FileUtils.getStandardizedAbsolutePath(this, filePath));
+    return false;
   }
 
   /** @inheritdoc */
@@ -357,6 +437,21 @@ export class KozmikFileSystemHost implements FileSystemHost {
     }
 
     return true;
+  }
+
+  /** @internal */
+  private getOrCreateDir(dirPath: StandardizedFilePath) {
+    let dir = this.directories.get(dirPath);
+
+    if (dir == null) {
+      dir = { path: dirPath, files: new Set<StandardizedFilePath>() };
+      this.directories.set(dirPath, dir);
+      const parentDirPath = FileUtils.getDirPath(dirPath);
+      if (parentDirPath !== dirPath)
+        this.getOrCreateDir(parentDirPath);
+    }
+
+    return dir;
   }
 }
 
