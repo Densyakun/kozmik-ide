@@ -5,6 +5,8 @@ import { FileUtils } from "@ts-morph/common";
 import { DirItem } from "@/pages/api/fs/dir";
 
 export class KozmikFileSystemHost implements FileSystemHost {
+  private currentDirectory?: string;
+
   /** @inheritdoc */
   async delete(path: string) {
     return fetch(`/api/fs/remove?path=${encodeURIComponent(path)}`, {
@@ -284,20 +286,21 @@ export class KozmikFileSystemHost implements FileSystemHost {
 
   /** @inheritdoc */
   getCurrentDirectory(): string {
-    try {
-      const request = new XMLHttpRequest();
-      request.open('GET', '/api/cwd', false);
-      request.overrideMimeType("text/plain; charset=UTF-8");
-      request.send(null);
+    if (this.currentDirectory === undefined)
+      try {
+        const request = new XMLHttpRequest();
+        request.open('GET', '/api/cwd', false);
+        request.overrideMimeType("text/plain; charset=UTF-8");
+        request.send(null);
 
-      if (request.status === 200) {
-        return request.responseText;
+        if (request.status === 200) {
+          return this.currentDirectory = request.responseText;
+        }
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
-    }
 
-    return "/";
+    return this.currentDirectory || "/";
   }
 
   /** @inheritdoc */
