@@ -18,6 +18,7 @@
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.8",
     "ace-builds": "^1.14.0",
+    "diff": "^5.1.0",
     "eslint": "8.27.0",
     "eslint-config-next": "13.0.3",
     "fast-glob": "^3.3.1",
@@ -35,6 +36,7 @@
     "typescript": "4.8.4"
   },
   "devDependencies": {
+    "@types/diff": "^5.0.8",
     "@types/fs-extra": "^9.0.13",
     "@types/react-window": "^1.8.5"
   }

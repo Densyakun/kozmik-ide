@@ -11,7 +11,7 @@ const button: MenuButton = {
   text: text,
   filter: item => item.isDirectory,
   Element: ({ handleClose, path }: ButtonElementProps) => {
-    return <Link href={`/ts-morph-editor?path=${path}`} passHref>
+    return <Link href={`/ts-morph-editor/?path=${path}`} passHref>
       <MenuItem onClick={() => {
         handleClose()
       }}>
