@@ -5,7 +5,6 @@ import Container from '@mui/material/Container'
 import useUser from '@/lib/useUser'
 import { useEffect, useState } from 'react'
 import { ProjectJson } from '@/pages/api/ts-morph/project'
-import NodeComponent from '@/TSMorphEditor/NodeComponent'
 
 import * as React from 'react';
 import List from '@mui/material/List';
