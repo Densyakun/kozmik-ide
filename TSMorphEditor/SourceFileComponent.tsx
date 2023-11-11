@@ -19,7 +19,7 @@ export default function SourceFileComponent({ sourceFile, setDirty }: { sourceFi
     <>
       <p>Imports:</p>
       {importDeclarations.length
-        ? importDeclarations.map((importDeclaration, index) => <ImportDeclarationComponent importDeclaration={importDeclaration} onDelete={() => {
+        ? importDeclarations.map((importDeclaration, index) => <ImportDeclarationComponent key={index} importDeclaration={importDeclaration} onDelete={() => {
           setDirty();
 
           const newImportDeclarations = [...importDeclarations];
@@ -35,7 +35,7 @@ export default function SourceFileComponent({ sourceFile, setDirty }: { sourceFi
         || child.getKind() === SyntaxKind.EndOfFileToken
       )
         ? <p>(empty)</p>
-        : children.map(child => <NodeComponent node={child} isRoot />)
+        : children.map((child, index) => <NodeComponent key={index} node={child} isRoot />)
       }
     </>
   );
@@ -110,7 +110,7 @@ export function UnknownNodeComponent({ node }: { node: Node }) {
   return (
     <>
       <NodeHeader node={node} title={`kind: ${node.getKindName()} (${node.getKind()})`} />
-      {node.getChildren().map(child => <NodeComponent node={child} />)}
+      {node.getChildren().map((child, index) => <NodeComponent key={index} node={child} />)}
     </>
   );
 }
@@ -126,7 +126,7 @@ export function SyntaxListComponent({ node, isRoot = false }: { node: SyntaxList
         || child.getKind() === SyntaxKind.EndOfFileToken
       )
         ? <p>(empty)</p>
-        : children.map(child => <NodeComponent node={child} isRoot />)
+        : children.map((child, index) => <NodeComponent key={index} node={child} isRoot />)
       }
     </>
   );
