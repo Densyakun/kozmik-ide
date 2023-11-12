@@ -1,7 +1,7 @@
 import { Backspace, TextFields } from '@mui/icons-material';
 import { Box, Dialog, IconButton, TextField, Typography } from '@mui/material';
 import { ReactNode, useState } from 'react';
-import { ImportDeclaration, Node, SourceFile, SyntaxKind, SyntaxList } from 'ts-morph';
+import { ImportDeclaration, Node, SourceFile, SyntaxKind, SyntaxList, VariableDeclaration, VariableDeclarationKind, VariableDeclarationList, VariableStatement } from 'ts-morph';
 
 export function NodeBox({ children, isRoot = false }: { children: ReactNode, isRoot?: boolean }) {
   return (
@@ -47,8 +47,11 @@ export function NodeComponent({ node, isRoot = false }: { node: Node, isRoot?: b
       {
         node.getKind() === SyntaxKind.SyntaxList ? <SyntaxListComponent node={node as SyntaxList} /> :
           node.getKind() === SyntaxKind.ImportDeclaration ? null :
-            node.getKind() === SyntaxKind.EndOfFileToken ? null :
-              <UnknownNodeComponent node={node} />
+            node.getKind() === SyntaxKind.VariableStatement ? <VariableStatementComponent variableStatement={node as VariableStatement} /> :
+              node.getKind() === SyntaxKind.VariableDeclarationList ? <VariableDeclarationListComponent variableDeclarationList={node as VariableDeclarationList} /> :
+                node.getKind() === SyntaxKind.VariableDeclaration ? <VariableDeclarationComponent variableDeclaration={node as VariableDeclaration} /> :
+                  node.getKind() === SyntaxKind.EndOfFileToken ? null :
+                    <UnknownNodeComponent node={node} />
       }
     </NodeBox>
   );
@@ -110,7 +113,7 @@ export function UnknownNodeComponent({ node }: { node: Node }) {
   return (
     <>
       <NodeHeader node={node} title={`kind: ${node.getKindName()} (${node.getKind()})`} />
-      {node.getChildren().map((child, index) => <NodeComponent key={index} node={child} />)}
+      {/*node.getChildren().map((child, index) => <NodeComponent key={index} node={child} />)*/}
     </>
   );
 }
@@ -133,9 +136,43 @@ export function SyntaxListComponent({ node, isRoot = false }: { node: SyntaxList
 }
 
 export function ImportDeclarationComponent({ importDeclaration, onDelete }: { importDeclaration: ImportDeclaration, onDelete: () => void }) {
+  const structure = importDeclaration.getStructure();
+
   return (
     <>
-      <NodeHeader node={importDeclaration} title={(importDeclaration.isTypeOnly() ? '(type) ' : '') + importDeclaration.getModuleSpecifierValue()} onDelete={onDelete} />
+      <NodeHeader node={importDeclaration} title={(structure.isTypeOnly ? '(type) ' : '') + structure.moduleSpecifier} onDelete={onDelete} />
+    </>
+  );
+}
+
+export function VariableStatementComponent({ variableStatement }: { variableStatement: VariableStatement }) {
+  return (
+    <VariableDeclarationListComponent variableDeclarationList={variableStatement.getDeclarationList()} />
+  );
+}
+
+export function VariableDeclarationListComponent({ variableDeclarationList }: { variableDeclarationList: VariableDeclarationList }) {
+  const declarationKind = variableDeclarationList.getDeclarationKind();
+
+  return (
+    <>
+      <NodeHeader node={variableDeclarationList} title={declarationKind === VariableDeclarationKind.Const ? 'const' : declarationKind === VariableDeclarationKind.Let ? 'let' : 'var'} />
+      {variableDeclarationList.getDeclarations().map((variableDeclaration, index) => <NodeComponent key={index} node={variableDeclaration} />)}
+    </>
+  );
+}
+
+export function VariableDeclarationComponent({ variableDeclaration }: { variableDeclaration: VariableDeclaration }) {
+  const variableDeclarationStructure = variableDeclaration.getStructure();
+  const initializer = variableDeclaration.getInitializer();
+
+  return (
+    <>
+      <NodeHeader node={variableDeclaration} title={
+        variableDeclarationStructure.name
+        + (variableDeclarationStructure.type ? ': ' + variableDeclarationStructure.type : '')
+      } />
+      {initializer && <NodeComponent node={initializer} />}
     </>
   );
 }
