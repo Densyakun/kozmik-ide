@@ -12,46 +12,30 @@ export function NodeBox({ children, isRoot = false }: { children: ReactNode, isR
 }
 
 export default function SourceFileComponent({ sourceFile, setDirty }: { sourceFile: SourceFile, setDirty: () => void }) {
-  const [importDeclarations, setImportDeclarations] = useState(sourceFile.getImportDeclarations());
   const children = sourceFile.getChildren();
 
   return (
     <>
-      <p>Imports:</p>
-      {importDeclarations.length
-        ? importDeclarations.map((importDeclaration, index) => <ImportDeclarationComponent key={index} importDeclaration={importDeclaration} onDelete={() => {
-          setDirty();
-
-          const newImportDeclarations = [...importDeclarations];
-          newImportDeclarations.splice(index, 1);
-          setImportDeclarations(newImportDeclarations);
-          importDeclaration.remove();
-        }} />)
-        : <p>(empty)</p>
-      }
-      <p>Other nodes:</p>
-      {children.every(child =>
-        child.getKind() === SyntaxKind.ImportDeclaration
-        || child.getKind() === SyntaxKind.EndOfFileToken
-      )
-        ? <p>(empty)</p>
-        : children.map((child, index) => <NodeComponent key={index} node={child} isRoot />)
-      }
+      {children.map((child, index) => <NodeComponent key={index} node={child} setDirty={setDirty} isRoot />)}
     </>
   );
 }
 
-export function NodeComponent({ node, isRoot = false }: { node: Node, isRoot?: boolean }) {
+export function NodeComponent({ node, setDirty, isRoot = false }: { node: Node, setDirty: () => void, isRoot?: boolean }) {
   return (
     <NodeBox isRoot={isRoot}>
       {
-        node.getKind() === SyntaxKind.SyntaxList ? <SyntaxListComponent node={node as SyntaxList} /> :
-          node.getKind() === SyntaxKind.ImportDeclaration ? null :
-            node.getKind() === SyntaxKind.VariableStatement ? <VariableStatementComponent variableStatement={node as VariableStatement} /> :
-              node.getKind() === SyntaxKind.VariableDeclarationList ? <VariableDeclarationListComponent variableDeclarationList={node as VariableDeclarationList} /> :
-                node.getKind() === SyntaxKind.VariableDeclaration ? <VariableDeclarationComponent variableDeclaration={node as VariableDeclaration} /> :
+        node.getKind() === SyntaxKind.SyntaxList ? <SyntaxListComponent node={node as SyntaxList} setDirty={setDirty} /> :
+          node.getKind() === SyntaxKind.ImportDeclaration ? <ImportDeclarationComponent importDeclaration={node as ImportDeclaration} onDelete={() => {
+            setDirty();
+
+            (node as ImportDeclaration).remove();
+          }} /> :
+            node.getKind() === SyntaxKind.VariableStatement ? <VariableStatementComponent variableStatement={node as VariableStatement} setDirty={setDirty} /> :
+              node.getKind() === SyntaxKind.VariableDeclarationList ? <VariableDeclarationListComponent variableDeclarationList={node as VariableDeclarationList} setDirty={setDirty} /> :
+                node.getKind() === SyntaxKind.VariableDeclaration ? <VariableDeclarationComponent variableDeclaration={node as VariableDeclaration} setDirty={setDirty} /> :
                   node.getKind() === SyntaxKind.EndOfFileToken ? null :
-                    <UnknownNodeComponent node={node} />
+                    <UnknownNodeComponent node={node} setDirty={setDirty} />
       }
     </NodeBox>
   );
@@ -109,28 +93,21 @@ export function NodeHeader({ node, title, isRoot = false, onDelete }: { node: No
   );
 }
 
-export function UnknownNodeComponent({ node }: { node: Node }) {
+export function UnknownNodeComponent({ node, setDirty }: { node: Node, setDirty: () => void }) {
   return (
     <>
       <NodeHeader node={node} title={`kind: ${node.getKindName()} (${node.getKind()})`} />
-      {/*node.getChildren().map((child, index) => <NodeComponent key={index} node={child} />)*/}
+      {node.getChildren().map((child, index) => <NodeComponent key={index} node={child} setDirty={setDirty} />)}
     </>
   );
 }
 
-export function SyntaxListComponent({ node, isRoot = false }: { node: SyntaxList, isRoot?: boolean }) {
+export function SyntaxListComponent({ node, setDirty }: { node: SyntaxList, setDirty: () => void }) {
   const children = node.getChildren();
 
   return (
     <>
-      <NodeHeader node={node} title='SyntaxList' isRoot={isRoot} />
-      {children.every(child =>
-        child.getKind() === SyntaxKind.ImportDeclaration
-        || child.getKind() === SyntaxKind.EndOfFileToken
-      )
-        ? <p>(empty)</p>
-        : children.map((child, index) => <NodeComponent key={index} node={child} isRoot />)
-      }
+      {children.map((child, index) => <NodeComponent key={index} node={child} setDirty={setDirty} isRoot />)}
     </>
   );
 }
@@ -140,29 +117,29 @@ export function ImportDeclarationComponent({ importDeclaration, onDelete }: { im
 
   return (
     <>
-      <NodeHeader node={importDeclaration} title={(structure.isTypeOnly ? '(type) ' : '') + structure.moduleSpecifier} onDelete={onDelete} />
+      <NodeHeader node={importDeclaration} title={'import ' + (structure.isTypeOnly ? '(type) ' : '') + structure.moduleSpecifier} onDelete={onDelete} />
     </>
   );
 }
 
-export function VariableStatementComponent({ variableStatement }: { variableStatement: VariableStatement }) {
+export function VariableStatementComponent({ variableStatement, setDirty }: { variableStatement: VariableStatement, setDirty: () => void }) {
   return (
-    <VariableDeclarationListComponent variableDeclarationList={variableStatement.getDeclarationList()} />
+    <VariableDeclarationListComponent variableDeclarationList={variableStatement.getDeclarationList()} setDirty={setDirty} />
   );
 }
 
-export function VariableDeclarationListComponent({ variableDeclarationList }: { variableDeclarationList: VariableDeclarationList }) {
+export function VariableDeclarationListComponent({ variableDeclarationList, setDirty }: { variableDeclarationList: VariableDeclarationList, setDirty: () => void }) {
   const declarationKind = variableDeclarationList.getDeclarationKind();
 
   return (
     <>
       <NodeHeader node={variableDeclarationList} title={declarationKind === VariableDeclarationKind.Const ? 'const' : declarationKind === VariableDeclarationKind.Let ? 'let' : 'var'} />
-      {variableDeclarationList.getDeclarations().map((variableDeclaration, index) => <NodeComponent key={index} node={variableDeclaration} />)}
+      {variableDeclarationList.getDeclarations().map((variableDeclaration, index) => <NodeComponent key={index} node={variableDeclaration} setDirty={setDirty} />)}
     </>
   );
 }
 
-export function VariableDeclarationComponent({ variableDeclaration }: { variableDeclaration: VariableDeclaration }) {
+export function VariableDeclarationComponent({ variableDeclaration, setDirty }: { variableDeclaration: VariableDeclaration, setDirty: () => void }) {
   const variableDeclarationStructure = variableDeclaration.getStructure();
   const initializer = variableDeclaration.getInitializer();
 
@@ -172,7 +149,7 @@ export function VariableDeclarationComponent({ variableDeclaration }: { variable
         variableDeclarationStructure.name
         + (variableDeclarationStructure.type ? ': ' + variableDeclarationStructure.type : '')
       } />
-      {initializer && <NodeComponent node={initializer} />}
+      {initializer && <NodeComponent node={initializer} setDirty={setDirty} />}
     </>
   );
 }
