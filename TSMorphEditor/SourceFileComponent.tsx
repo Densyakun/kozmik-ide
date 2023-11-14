@@ -1,7 +1,7 @@
 import { Backspace, TextFields } from '@mui/icons-material';
 import { Box, Dialog, IconButton, TextField, Typography } from '@mui/material';
 import { ReactNode, useState } from 'react';
-import { ImportDeclaration, Node, SourceFile, SyntaxKind, SyntaxList, VariableDeclaration, VariableDeclarationKind, VariableDeclarationList, VariableStatement } from 'ts-morph';
+import { BigIntLiteral, ImportDeclaration, Node, NumericLiteral, SourceFile, StringLiteral, SyntaxKind, SyntaxList, VariableDeclaration, VariableDeclarationKind, VariableDeclarationList, VariableStatement } from 'ts-morph';
 
 export function NodeBox({ children, isRoot = false }: { children: ReactNode, isRoot?: boolean }) {
   return (
@@ -33,11 +33,14 @@ export function NodeComponent({ node, setDirty, isRoot = false }: { node: Node, 
           }} /> :
             node.getKind() === SyntaxKind.SingleLineCommentTrivia
               || node.getKind() === SyntaxKind.MultiLineCommentTrivia ? null :
-              node.getKind() === SyntaxKind.VariableStatement ? <VariableStatementComponent variableStatement={node as VariableStatement} setDirty={setDirty} /> :
-                node.getKind() === SyntaxKind.VariableDeclarationList ? <VariableDeclarationListComponent variableDeclarationList={node as VariableDeclarationList} setDirty={setDirty} /> :
-                  node.getKind() === SyntaxKind.VariableDeclaration ? <VariableDeclarationComponent variableDeclaration={node as VariableDeclaration} setDirty={setDirty} /> :
-                    node.getKind() === SyntaxKind.EndOfFileToken ? <EndOfFileTokenComponent node={node} /> :
-                      <UnknownNodeComponent node={node} setDirty={setDirty} />
+              node.getKind() === SyntaxKind.NumericLiteral ? <NumericLiteralComponent node={node as NumericLiteral} /> :
+                node.getKind() === SyntaxKind.BigIntLiteral ? <BigIntLiteralComponent node={node as BigIntLiteral} /> :
+                  node.getKind() === SyntaxKind.StringLiteral ? <StringLiteralComponent node={node as StringLiteral} /> :
+                    node.getKind() === SyntaxKind.VariableStatement ? <VariableStatementComponent variableStatement={node as VariableStatement} setDirty={setDirty} /> :
+                      node.getKind() === SyntaxKind.VariableDeclarationList ? <VariableDeclarationListComponent variableDeclarationList={node as VariableDeclarationList} setDirty={setDirty} /> :
+                        node.getKind() === SyntaxKind.VariableDeclaration ? <VariableDeclarationComponent variableDeclaration={node as VariableDeclaration} setDirty={setDirty} /> :
+                          node.getKind() === SyntaxKind.EndOfFileToken ? <EndOfFileTokenComponent node={node} /> :
+                            <UnknownNodeComponent node={node} setDirty={setDirty} />
       }
     </NodeBox>
   );
@@ -126,6 +129,30 @@ export function EndOfFileTokenComponent({ node }: { node: Node }) {
   );
 }
 
+export function NumericLiteralComponent({ node }: { node: NumericLiteral }) {
+  return (
+    <>
+      <NodeHeader node={node} title={node.getLiteralText()} />
+    </>
+  );
+}
+
+export function BigIntLiteralComponent({ node }: { node: BigIntLiteral }) {
+  return (
+    <>
+      <NodeHeader node={node} title={node.getLiteralText()} />
+    </>
+  );
+}
+
+export function StringLiteralComponent({ node }: { node: StringLiteral }) {
+  return (
+    <>
+      <NodeHeader node={node} title={node.getLiteralText()} />
+    </>
+  );
+}
+
 export function ImportDeclarationComponent({ importDeclaration, onDelete }: { importDeclaration: ImportDeclaration, onDelete: () => void }) {
   const structure = importDeclaration.getStructure();
 
@@ -162,6 +189,7 @@ export function VariableDeclarationComponent({ variableDeclaration, setDirty }: 
       <NodeHeader node={variableDeclaration} title={
         variableDeclarationStructure.name
         + (variableDeclarationStructure.type ? ': ' + variableDeclarationStructure.type : '')
+        + ' ='
       } />
       {initializer && <NodeComponent node={initializer} setDirty={setDirty} />}
     </>
