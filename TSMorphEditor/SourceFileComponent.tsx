@@ -31,11 +31,20 @@ export function NodeComponent({ node, setDirty, isRoot = false }: { node: Node, 
 
             (node as ImportDeclaration).remove();
           }} /> :
-            node.getKind() === SyntaxKind.VariableStatement ? <VariableStatementComponent variableStatement={node as VariableStatement} setDirty={setDirty} /> :
-              node.getKind() === SyntaxKind.VariableDeclarationList ? <VariableDeclarationListComponent variableDeclarationList={node as VariableDeclarationList} setDirty={setDirty} /> :
-                node.getKind() === SyntaxKind.VariableDeclaration ? <VariableDeclarationComponent variableDeclaration={node as VariableDeclaration} setDirty={setDirty} /> :
-                  node.getKind() === SyntaxKind.EndOfFileToken ? <EndOfFileTokenComponent node={node} /> :
-                    <UnknownNodeComponent node={node} setDirty={setDirty} />
+            node.getKind() === SyntaxKind.SingleLineCommentTrivia
+              || node.getKind() === SyntaxKind.MultiLineCommentTrivia
+              || node.getKind() === SyntaxKind.NewLineTrivia
+              || node.getKind() === SyntaxKind.WhitespaceTrivia
+              || node.getKind() === SyntaxKind.ShebangTrivia
+              || node.getKind() === SyntaxKind.WhitespaceTrivia
+              || node.getKind() === SyntaxKind.ShebangTrivia
+              || node.getKind() === SyntaxKind.ConflictMarkerTrivia
+              || node.getKind() === SyntaxKind.NonTextFileMarkerTrivia ? null :
+              node.getKind() === SyntaxKind.VariableStatement ? <VariableStatementComponent variableStatement={node as VariableStatement} setDirty={setDirty} /> :
+                node.getKind() === SyntaxKind.VariableDeclarationList ? <VariableDeclarationListComponent variableDeclarationList={node as VariableDeclarationList} setDirty={setDirty} /> :
+                  node.getKind() === SyntaxKind.VariableDeclaration ? <VariableDeclarationComponent variableDeclaration={node as VariableDeclaration} setDirty={setDirty} /> :
+                    node.getKind() === SyntaxKind.EndOfFileToken ? <EndOfFileTokenComponent node={node} /> :
+                      <UnknownNodeComponent node={node} setDirty={setDirty} />
       }
     </NodeBox>
   );
