@@ -12,6 +12,23 @@ export default function SourceFileContainer({ filePath }: { filePath: string }) 
   const [oldProgram, setOldProgram] = useState('');
   const [dirty, setDirty] = useState(false);
 
+  function loadSourceFile(sourceFileText: string) {
+    const project = new Project({
+          useInMemoryFileSystem: true,
+        });
+
+        const sourceFile = project.createSourceFile(filePath, sourceFileText);
+        setSourceFile(sourceFile);
+
+        setOldProgramAndComments(sourceFileText);
+
+        const sourceFileStructure = sourceFile.getStructure();
+        sourceFile.set(sourceFileStructure);
+        setOldProgram(sourceFile.getText());
+
+        sourceFile.replaceWithText(sourceFileText);
+  }
+
   function fetchSourceFile() {
     fetch(`/api/fs/file?path=${encodeURIComponent(filePath as string)}&options=${JSON.stringify({ encoding: "utf8" })}`, {
       method: 'GET'
@@ -26,20 +43,7 @@ export default function SourceFileContainer({ filePath }: { filePath: string }) 
 
         const sourceFileText = json.data as string;
 
-        const project = new Project({
-          useInMemoryFileSystem: true,
-        });
-
-        const sourceFile = project.createSourceFile(filePath, sourceFileText);
-        setSourceFile(sourceFile);
-
-        setOldProgramAndComments(sourceFileText);
-
-        const sourceFileStructure = sourceFile.getStructure();
-        sourceFile.set(sourceFileStructure);
-        setOldProgram(sourceFile.getText());
-
-        sourceFile.replaceWithText(sourceFileText);
+        loadSourceFile(sourceFileText);
       })
       .catch(error => {
         console.error(error);
@@ -72,6 +76,8 @@ export default function SourceFileContainer({ filePath }: { filePath: string }) 
           //alert(oldProgramAndComments);
           //alert(newProgram);
           sourceFile.replaceWithText(replacedText);
+
+          loadSourceFile(replacedText);
 
           fetch(`/api/fs/file?path=${encodeURIComponent(filePath)}&options=${JSON.stringify({ encoding: "utf8" })}`, {
             method: 'POST',
