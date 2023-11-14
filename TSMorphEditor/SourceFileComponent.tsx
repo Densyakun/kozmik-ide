@@ -11,8 +11,10 @@ export function NodeBox({ children, isRoot = false }: { children: ReactNode, isR
   );
 }
 
-export default function SourceFileComponent({ sourceFile, setDirty }: { sourceFile: SourceFile, setDirty: () => void }) {
-  const children = sourceFile.getChildren();
+export type NodePropsType = { node: Node, setDirty: () => void };
+
+export default function SourceFileComponent({ node, setDirty }: NodePropsType & { node: SourceFile, setDirty: () => void }) {
+  const children = node.getChildren();
 
   return (
     <>
@@ -21,7 +23,7 @@ export default function SourceFileComponent({ sourceFile, setDirty }: { sourceFi
   );
 }
 
-export function NodeComponent({ node, setDirty, isRoot = false }: { node: Node, setDirty: () => void, isRoot?: boolean }) {
+export function NodeComponent({ node, setDirty, isRoot = false }: NodePropsType & { isRoot?: boolean }) {
   return (
     <NodeBox isRoot={isRoot}>
       {
@@ -38,12 +40,12 @@ export function NodeComponent({ node, setDirty, isRoot = false }: { node: Node, 
                   node.getKind() === SyntaxKind.StringLiteral ? <StringLiteralComponent node={node as StringLiteral} /> :
                     node.getKind() === SyntaxKind.JsxText ? <JsxTextComponent node={node as JsxText} /> :
                       node.getKind() === SyntaxKind.RegularExpressionLiteral ? <RegularExpressionLiteralComponent node={node as RegularExpressionLiteral} /> :
-                      node.getKind() === SyntaxKind.NoSubstitutionTemplateLiteral ? <NoSubstitutionTemplateLiteralComponent node={node as NoSubstitutionTemplateLiteral} /> :
-                        node.getKind() === SyntaxKind.VariableStatement ? <VariableStatementComponent variableStatement={node as VariableStatement} setDirty={setDirty} /> :
-                          node.getKind() === SyntaxKind.VariableDeclarationList ? <VariableDeclarationListComponent variableDeclarationList={node as VariableDeclarationList} setDirty={setDirty} /> :
-                            node.getKind() === SyntaxKind.VariableDeclaration ? <VariableDeclarationComponent variableDeclaration={node as VariableDeclaration} setDirty={setDirty} /> :
-                              node.getKind() === SyntaxKind.EndOfFileToken ? <EndOfFileTokenComponent node={node} /> :
-                                <UnknownNodeComponent node={node} setDirty={setDirty} />
+                        node.getKind() === SyntaxKind.NoSubstitutionTemplateLiteral ? <NoSubstitutionTemplateLiteralComponent node={node as NoSubstitutionTemplateLiteral} /> :
+                          node.getKind() === SyntaxKind.VariableStatement ? <VariableStatementComponent node={node as VariableStatement} setDirty={setDirty} /> :
+                            node.getKind() === SyntaxKind.VariableDeclarationList ? <VariableDeclarationListComponent node={node as VariableDeclarationList} setDirty={setDirty} /> :
+                              node.getKind() === SyntaxKind.VariableDeclaration ? <VariableDeclarationComponent node={node as VariableDeclaration} setDirty={setDirty} /> :
+                                node.getKind() === SyntaxKind.EndOfFileToken ? <EndOfFileTokenComponent node={node} /> :
+                                  <UnknownNodeComponent node={node} setDirty={setDirty} />
       }
     </NodeBox>
   );
@@ -128,7 +130,7 @@ export function NodeHeader({ node, title, isRoot = false, onDelete }: { node: No
   );
 }
 
-export function UnknownNodeComponent({ node, setDirty }: { node: Node, setDirty: () => void }) {
+export function UnknownNodeComponent({ node, setDirty }: NodePropsType) {
   return (
     <>
       <NodeHeader node={node} title={`kind: ${node.getKindName()} (${node.getKind()})`} />
@@ -137,7 +139,7 @@ export function UnknownNodeComponent({ node, setDirty }: { node: Node, setDirty:
   );
 }
 
-export function SyntaxListComponent({ node, setDirty }: { node: SyntaxList, setDirty: () => void }) {
+export function SyntaxListComponent({ node, setDirty }: NodePropsType & { node: SyntaxList }) {
   const children = node.getChildren();
 
   return (
@@ -214,30 +216,30 @@ export function ImportDeclarationComponent({ importDeclaration, onDelete }: { im
   );
 }
 
-export function VariableStatementComponent({ variableStatement, setDirty }: { variableStatement: VariableStatement, setDirty: () => void }) {
+export function VariableStatementComponent({ node, setDirty }: NodePropsType & { node: VariableStatement }) {
   return (
-    <VariableDeclarationListComponent variableDeclarationList={variableStatement.getDeclarationList()} setDirty={setDirty} />
+    <VariableDeclarationListComponent node={node.getDeclarationList()} setDirty={setDirty} />
   );
 }
 
-export function VariableDeclarationListComponent({ variableDeclarationList, setDirty }: { variableDeclarationList: VariableDeclarationList, setDirty: () => void }) {
-  const declarationKind = variableDeclarationList.getDeclarationKind();
+export function VariableDeclarationListComponent({ node, setDirty }: NodePropsType & { node: VariableDeclarationList }) {
+  const declarationKind = node.getDeclarationKind();
 
   return (
     <>
-      <NodeHeader node={variableDeclarationList} title={declarationKind === VariableDeclarationKind.Const ? 'const' : declarationKind === VariableDeclarationKind.Let ? 'let' : 'var'} />
-      {variableDeclarationList.getDeclarations().map((variableDeclaration, index) => <NodeComponent key={index} node={variableDeclaration} setDirty={setDirty} />)}
+      <NodeHeader node={node} title={declarationKind === VariableDeclarationKind.Const ? 'const' : declarationKind === VariableDeclarationKind.Let ? 'let' : 'var'} />
+      {node.getDeclarations().map((variableDeclaration, index) => <NodeComponent key={index} node={variableDeclaration} setDirty={setDirty} />)}
     </>
   );
 }
 
-export function VariableDeclarationComponent({ variableDeclaration, setDirty }: { variableDeclaration: VariableDeclaration, setDirty: () => void }) {
-  const variableDeclarationStructure = variableDeclaration.getStructure();
-  const initializer = variableDeclaration.getInitializer();
+export function VariableDeclarationComponent({ node, setDirty }: NodePropsType & { node: VariableDeclaration }) {
+  const variableDeclarationStructure = node.getStructure();
+  const initializer = node.getInitializer();
 
   return (
     <>
-      <NodeHeader node={variableDeclaration} title={
+      <NodeHeader node={node} title={
         variableDeclarationStructure.name
         + (variableDeclarationStructure.type ? ': ' + variableDeclarationStructure.type : '')
         + ' ='

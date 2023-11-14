@@ -95,7 +95,7 @@ export default function SourceFileContainer({ filePath }: { filePath: string }) 
               console.error(error);
             });
         }} />}
-        {sourceFile && <SourceFileComponent sourceFile={sourceFile} setDirty={() => setDirty(true)} />}
+        {sourceFile && <SourceFileComponent node={sourceFile} setDirty={() => setDirty(true)} />}
       </Container>
     </>
   );
