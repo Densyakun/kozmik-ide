@@ -1,7 +1,7 @@
 import { Backspace, TextFields } from '@mui/icons-material';
-import { Box, Dialog, IconButton, TextField, Typography } from '@mui/material';
+import { Box, Card, Dialog, IconButton, TextField, Typography } from '@mui/material';
 import { ReactNode, useState } from 'react';
-import { BigIntLiteral, ImportDeclaration, JsxText, Node, NumericLiteral, SourceFile, StringLiteral, SyntaxKind, SyntaxList, VariableDeclaration, VariableDeclarationKind, VariableDeclarationList, VariableStatement } from 'ts-morph';
+import { BigIntLiteral, ImportDeclaration, JsxText, NoSubstitutionTemplateLiteral, Node, NumericLiteral, RegularExpressionLiteral, SourceFile, StringLiteral, SyntaxKind, SyntaxList, VariableDeclaration, VariableDeclarationKind, VariableDeclarationList, VariableStatement } from 'ts-morph';
 
 export function NodeBox({ children, isRoot = false }: { children: ReactNode, isRoot?: boolean }) {
   return (
@@ -37,11 +37,13 @@ export function NodeComponent({ node, setDirty, isRoot = false }: { node: Node, 
                 node.getKind() === SyntaxKind.BigIntLiteral ? <BigIntLiteralComponent node={node as BigIntLiteral} /> :
                   node.getKind() === SyntaxKind.StringLiteral ? <StringLiteralComponent node={node as StringLiteral} /> :
                     node.getKind() === SyntaxKind.JsxText ? <JsxTextComponent node={node as JsxText} /> :
-                      node.getKind() === SyntaxKind.VariableStatement ? <VariableStatementComponent variableStatement={node as VariableStatement} setDirty={setDirty} /> :
-                        node.getKind() === SyntaxKind.VariableDeclarationList ? <VariableDeclarationListComponent variableDeclarationList={node as VariableDeclarationList} setDirty={setDirty} /> :
-                          node.getKind() === SyntaxKind.VariableDeclaration ? <VariableDeclarationComponent variableDeclaration={node as VariableDeclaration} setDirty={setDirty} /> :
-                            node.getKind() === SyntaxKind.EndOfFileToken ? <EndOfFileTokenComponent node={node} /> :
-                              <UnknownNodeComponent node={node} setDirty={setDirty} />
+                      node.getKind() === SyntaxKind.RegularExpressionLiteral ? <RegularExpressionLiteralComponent node={node as RegularExpressionLiteral} /> :
+                      node.getKind() === SyntaxKind.NoSubstitutionTemplateLiteral ? <NoSubstitutionTemplateLiteralComponent node={node as NoSubstitutionTemplateLiteral} /> :
+                        node.getKind() === SyntaxKind.VariableStatement ? <VariableStatementComponent variableStatement={node as VariableStatement} setDirty={setDirty} /> :
+                          node.getKind() === SyntaxKind.VariableDeclarationList ? <VariableDeclarationListComponent variableDeclarationList={node as VariableDeclarationList} setDirty={setDirty} /> :
+                            node.getKind() === SyntaxKind.VariableDeclaration ? <VariableDeclarationComponent variableDeclaration={node as VariableDeclaration} setDirty={setDirty} /> :
+                              node.getKind() === SyntaxKind.EndOfFileToken ? <EndOfFileTokenComponent node={node} /> :
+                                <UnknownNodeComponent node={node} setDirty={setDirty} />
       }
     </NodeBox>
   );
@@ -74,6 +76,34 @@ function SimpleDialog(props: SimpleDialogProps) {
   );
 }
 
+export function ActionButtons({ node, isRoot = false, onDelete }: { node: Node, isRoot?: boolean, onDelete?: () => void }) {
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (value: string) => {
+    setOpen(false);
+  };
+
+  return (
+    <>
+      {<IconButton aria-label="show text" size="small" onClick={handleClickOpen}>
+        <TextFields fontSize="small" />
+      </IconButton>}
+      {!isRoot && onDelete !== undefined && <IconButton aria-label="delete" size="small" onClick={onDelete}>
+        <Backspace fontSize="small" />
+      </IconButton>}
+      <SimpleDialog
+        open={open}
+        onClose={handleClose}
+        text={node.getFullText()}
+      />
+    </>
+  );
+}
+
 export function NodeHeader({ node, title, isRoot = false, onDelete }: { node: Node, title: string, isRoot?: boolean, onDelete?: () => void }) {
   const [open, setOpen] = useState(false);
 
@@ -88,12 +118,7 @@ export function NodeHeader({ node, title, isRoot = false, onDelete }: { node: No
   return (
     <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
       {title}
-      {<IconButton aria-label="show text" size="small" onClick={handleClickOpen}>
-        <TextFields fontSize="small" />
-      </IconButton>}
-      {!isRoot && onDelete !== undefined && <IconButton aria-label="delete" size="small" onClick={onDelete}>
-        <Backspace fontSize="small" />
-      </IconButton>}
+      <ActionButtons node={node} isRoot={isRoot} onDelete={onDelete} />
       <SimpleDialog
         open={open}
         onClose={handleClose}
@@ -160,6 +185,22 @@ export function JsxTextComponent({ node }: { node: JsxText }) {
     <>
       <NodeHeader node={node} title={literalText.trim() ? literalText : '(Empty literal text)'} />
     </>
+  );
+}
+
+export function RegularExpressionLiteralComponent({ node }: { node: RegularExpressionLiteral }) {
+  return (
+    <>
+      <NodeHeader node={node} title={node.getLiteralText()} />
+    </>
+  );
+}
+
+export function NoSubstitutionTemplateLiteralComponent({ node }: { node: NoSubstitutionTemplateLiteral }) {
+  return (
+    <Card>
+      <pre>`{node.getLiteralText()}`</pre>
+    </Card>
   );
 }
 
