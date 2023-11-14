@@ -1,7 +1,7 @@
 import { Backspace, TextFields } from '@mui/icons-material';
 import { Box, Dialog, IconButton, TextField, Typography } from '@mui/material';
 import { ReactNode, useState } from 'react';
-import { BigIntLiteral, ImportDeclaration, Node, NumericLiteral, SourceFile, StringLiteral, SyntaxKind, SyntaxList, VariableDeclaration, VariableDeclarationKind, VariableDeclarationList, VariableStatement } from 'ts-morph';
+import { BigIntLiteral, ImportDeclaration, JsxText, Node, NumericLiteral, SourceFile, StringLiteral, SyntaxKind, SyntaxList, VariableDeclaration, VariableDeclarationKind, VariableDeclarationList, VariableStatement } from 'ts-morph';
 
 export function NodeBox({ children, isRoot = false }: { children: ReactNode, isRoot?: boolean }) {
   return (
@@ -36,11 +36,12 @@ export function NodeComponent({ node, setDirty, isRoot = false }: { node: Node, 
               node.getKind() === SyntaxKind.NumericLiteral ? <NumericLiteralComponent node={node as NumericLiteral} /> :
                 node.getKind() === SyntaxKind.BigIntLiteral ? <BigIntLiteralComponent node={node as BigIntLiteral} /> :
                   node.getKind() === SyntaxKind.StringLiteral ? <StringLiteralComponent node={node as StringLiteral} /> :
-                    node.getKind() === SyntaxKind.VariableStatement ? <VariableStatementComponent variableStatement={node as VariableStatement} setDirty={setDirty} /> :
-                      node.getKind() === SyntaxKind.VariableDeclarationList ? <VariableDeclarationListComponent variableDeclarationList={node as VariableDeclarationList} setDirty={setDirty} /> :
-                        node.getKind() === SyntaxKind.VariableDeclaration ? <VariableDeclarationComponent variableDeclaration={node as VariableDeclaration} setDirty={setDirty} /> :
-                          node.getKind() === SyntaxKind.EndOfFileToken ? <EndOfFileTokenComponent node={node} /> :
-                            <UnknownNodeComponent node={node} setDirty={setDirty} />
+                    node.getKind() === SyntaxKind.JsxText ? <JsxTextComponent node={node as JsxText} /> :
+                      node.getKind() === SyntaxKind.VariableStatement ? <VariableStatementComponent variableStatement={node as VariableStatement} setDirty={setDirty} /> :
+                        node.getKind() === SyntaxKind.VariableDeclarationList ? <VariableDeclarationListComponent variableDeclarationList={node as VariableDeclarationList} setDirty={setDirty} /> :
+                          node.getKind() === SyntaxKind.VariableDeclaration ? <VariableDeclarationComponent variableDeclaration={node as VariableDeclaration} setDirty={setDirty} /> :
+                            node.getKind() === SyntaxKind.EndOfFileToken ? <EndOfFileTokenComponent node={node} /> :
+                              <UnknownNodeComponent node={node} setDirty={setDirty} />
       }
     </NodeBox>
   );
@@ -149,6 +150,15 @@ export function StringLiteralComponent({ node }: { node: StringLiteral }) {
   return (
     <>
       <NodeHeader node={node} title={node.getLiteralText()} />
+    </>
+  );
+}
+
+export function JsxTextComponent({ node }: { node: JsxText }) {
+  const literalText = node.getLiteralText();
+  return (
+    <>
+      <NodeHeader node={node} title={literalText.trim() ? literalText : '(Empty literal text)'} />
     </>
   );
 }
