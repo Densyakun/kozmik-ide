@@ -14,19 +14,19 @@ export default function SourceFileContainer({ filePath }: { filePath: string }) 
 
   function loadSourceFile(sourceFileText: string) {
     const project = new Project({
-          useInMemoryFileSystem: true,
-        });
+      useInMemoryFileSystem: true,
+    });
 
-        const sourceFile = project.createSourceFile(filePath, sourceFileText);
-        setSourceFile(sourceFile);
+    const sourceFile = project.createSourceFile(filePath, sourceFileText);
+    setSourceFile(sourceFile);
 
-        setOldProgramAndComments(sourceFileText);
+    setOldProgramAndComments(sourceFileText);
 
-        const sourceFileStructure = sourceFile.getStructure();
-        sourceFile.set(sourceFileStructure);
-        setOldProgram(sourceFile.getText());
+    const sourceFileStructure = sourceFile.getStructure();
+    sourceFile.set(sourceFileStructure);
+    setOldProgram(sourceFile.getText());
 
-        sourceFile.replaceWithText(sourceFileText);
+    sourceFile.replaceWithText(sourceFileText);
   }
 
   function fetchSourceFile() {
