@@ -60,11 +60,15 @@ function SimpleDialog(props: SimpleDialogProps) {
   const { onClose, open, text } = props;
 
   return (
-    <Dialog onClose={onClose} open={open}>
+    <Dialog
+      fullWidth={true}
+      onClose={onClose}
+      open={open}
+    >
       <TextField
-        id="outlined-disabled"
         defaultValue={text}
         multiline
+        rows={0}
         InputProps={{
           readOnly: true,
         }}
