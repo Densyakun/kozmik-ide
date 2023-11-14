@@ -68,9 +68,9 @@ export default function SourceFileContainer({ filePath }: { filePath: string }) 
             oldProgramAndComments,
             newProgram
           );
-          alert(oldProgram);
-          alert(oldProgramAndComments);
-          alert(newProgram);
+          //alert(oldProgram);
+          //alert(oldProgramAndComments);
+          //alert(newProgram);
           sourceFile.replaceWithText(replacedText);
 
           fetch(`/api/fs/file?path=${encodeURIComponent(filePath)}&options=${JSON.stringify({ encoding: "utf8" })}`, {
