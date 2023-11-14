@@ -34,7 +34,7 @@ export function NodeComponent({ node, setDirty, isRoot = false }: { node: Node, 
             node.getKind() === SyntaxKind.VariableStatement ? <VariableStatementComponent variableStatement={node as VariableStatement} setDirty={setDirty} /> :
               node.getKind() === SyntaxKind.VariableDeclarationList ? <VariableDeclarationListComponent variableDeclarationList={node as VariableDeclarationList} setDirty={setDirty} /> :
                 node.getKind() === SyntaxKind.VariableDeclaration ? <VariableDeclarationComponent variableDeclaration={node as VariableDeclaration} setDirty={setDirty} /> :
-                  node.getKind() === SyntaxKind.EndOfFileToken ? null :
+                  node.getKind() === SyntaxKind.EndOfFileToken ? <EndOfFileTokenComponent node={node} /> :
                     <UnknownNodeComponent node={node} setDirty={setDirty} />
       }
     </NodeBox>
@@ -108,6 +108,14 @@ export function SyntaxListComponent({ node, setDirty }: { node: SyntaxList, setD
   return (
     <>
       {children.map((child, index) => <NodeComponent key={index} node={child} setDirty={setDirty} isRoot />)}
+    </>
+  );
+}
+
+export function EndOfFileTokenComponent({ node }: { node: Node }) {
+  return (
+    <>
+      <NodeHeader node={node} title='(EOF)' />
     </>
   );
 }
