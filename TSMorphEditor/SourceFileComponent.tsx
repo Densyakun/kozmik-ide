@@ -1,25 +1,89 @@
 import { Backspace, TextFields } from '@mui/icons-material';
-import { Box, Card, Dialog, IconButton, TextField, Typography } from '@mui/material';
+import { Box, Card, Dialog, IconButton, Paper, Stack, TextField, Typography } from '@mui/material';
 import { ReactNode, useState } from 'react';
-import { BigIntLiteral, ImportDeclaration, JsxText, NoSubstitutionTemplateLiteral, Node, NumericLiteral, RegularExpressionLiteral, SourceFile, StringLiteral, SyntaxKind, SyntaxList, VariableDeclaration, VariableDeclarationKind, VariableDeclarationList, VariableStatement } from 'ts-morph';
+import { BigIntLiteral, CommentRange, ImportDeclaration, JsxText, NoSubstitutionTemplateLiteral, Node, NumericLiteral, RegularExpressionLiteral, SourceFile, StringLiteral, SyntaxKind, SyntaxList, VariableDeclaration, VariableDeclarationKind, VariableDeclarationList, VariableStatement } from 'ts-morph';
 
-export function NodeBox({ children, isRoot = false }: { children: ReactNode, isRoot?: boolean }) {
+export const kindCount = 363;
+
+export function getKindHue(kind: number) {
+  return kind * 360 / kindCount;
+}
+
+export function NodePaper({ children, kind }: { children: ReactNode, kind: number }) {
   return (
-    <Box sx={{ px: isRoot ? 0 : 1 }}>
+    <Paper
+      elevation={4}
+      sx={{
+        backgroundColor: `hsl(${getKindHue(kind)}, 50%, 75%)`,
+        px: 1,
+        py: 0.5,
+      }}>
       {children}
-    </Box>
+    </Paper>
   );
 }
 
-export type NodePropsType = { node: Node, setDirty: () => void };
+export function getChildrenOtherThanComments(node: Node) {
+  return node.getChildren().filter(child =>
+    child.getKind() !== SyntaxKind.SingleLineCommentTrivia
+    && child.getKind() !== SyntaxKind.MultiLineCommentTrivia
+  );
+}
 
-export default function SourceFileComponent({ node, setDirty }: NodePropsType & { node: SourceFile, setDirty: () => void }) {
-  const children = node.getChildren();
+export function NodeStack({ children }: { children: ReactNode }) {
+  return (
+    <Stack spacing={0.5}>
+      {children}
+    </Stack>
+  );
+}
 
+export function CommentRangesComponent({ commentRanges }: { commentRanges: CommentRange[] }) {
   return (
     <>
-      {children.map((child, index) => <NodeComponent key={index} node={child} setDirty={setDirty} isRoot />)}
+      {commentRanges.map(commentRange => <Typography sx={{ fontSize: 14 }} color="text.secondary">{commentRange.getText()}</Typography>)}
     </>
+  )
+}
+
+export type NodePropsType = { node: Node, setDirty: () => void, isRoot?: boolean };
+
+export function NodeSimpleComponent({ node, setDirty }: NodePropsType) {
+  const kind = node.getKind();
+  const children = getChildrenOtherThanComments(node);
+
+  return (
+    <NodePaper kind={kind}>
+      {!children.length && <CommentRangesComponent commentRanges={node.getLeadingCommentRanges()} />}
+      <NodeHeader node={node} title={`kind: ${node.getKindName()} (${kind})`} />
+      {!children.length && <CommentRangesComponent commentRanges={node.getTrailingCommentRanges()} />}
+      <NodeStack>
+        {children.map((child, index) => <NodeSimpleComponent key={index} node={child} setDirty={setDirty} />)}
+      </NodeStack>
+    </NodePaper>
+  );
+}
+
+export default function SourceFileComponent({ node, setDirty }: NodePropsType & { node: SourceFile }) {
+  const children = node.getChildren();
+  const childrenInSyntaxList = getChildrenOtherThanComments(children[0]);
+
+  return (
+    <NodePaper kind={node.getKind()}>
+      <NodeHeader node={node} title={`Source file`} />
+      <NodeStack>
+        {childrenInSyntaxList.map((child, index) => <NodeSimpleComponent key={index} node={child} setDirty={setDirty} />)}
+        <NodeSimpleComponent node={children[1]} setDirty={setDirty} />
+      </NodeStack>
+    </NodePaper>
+  );
+}
+
+export function NodeBox({ children, isRoot = false }: { children: ReactNode, isRoot?: boolean }) {
+  return (
+    <Box sx={{ pl: isRoot ? 0 : 1 }}>
+      {children}
+    </Box>
   );
 }
 
@@ -27,7 +91,7 @@ export function NodeComponent({ node, setDirty, isRoot = false }: NodePropsType 
   return (
     <NodeBox isRoot={isRoot}>
       {
-        node.getKind() === SyntaxKind.SyntaxList ? <SyntaxListComponent node={node as SyntaxList} setDirty={setDirty} /> :
+        /*node.getKind() === SyntaxKind.SyntaxList ? <SyntaxListComponent node={node as SyntaxList} setDirty={setDirty} /> :
           node.getKind() === SyntaxKind.ImportDeclaration ? <ImportDeclarationComponent importDeclaration={node as ImportDeclaration} onDelete={() => {
             setDirty();
 
@@ -44,8 +108,8 @@ export function NodeComponent({ node, setDirty, isRoot = false }: NodePropsType 
                           node.getKind() === SyntaxKind.VariableStatement ? <VariableStatementComponent node={node as VariableStatement} setDirty={setDirty} /> :
                             node.getKind() === SyntaxKind.VariableDeclarationList ? <VariableDeclarationListComponent node={node as VariableDeclarationList} setDirty={setDirty} /> :
                               node.getKind() === SyntaxKind.VariableDeclaration ? <VariableDeclarationComponent node={node as VariableDeclaration} setDirty={setDirty} /> :
-                                node.getKind() === SyntaxKind.EndOfFileToken ? <EndOfFileTokenComponent node={node} /> :
-                                  <UnknownNodeComponent node={node} setDirty={setDirty} />
+                                node.getKind() === SyntaxKind.EndOfFileToken ? <EndOfFileTokenComponent node={node} /> :*/
+        <UnknownNodeComponent node={node} setDirty={setDirty} />
       }
     </NodeBox>
   );
@@ -118,7 +182,7 @@ export function NodeHeader({ node, title, isRoot = false, onDelete }: { node: No
   };
 
   return (
-    <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+    <Typography sx={{ fontSize: 14 }} color="text.secondary">
       {title}
       <ActionButtons node={node} isRoot={isRoot} onDelete={onDelete} />
       <SimpleDialog
@@ -206,12 +270,15 @@ export function NoSubstitutionTemplateLiteralComponent({ node }: { node: NoSubst
   );
 }
 
-export function ImportDeclarationComponent({ importDeclaration, onDelete }: { importDeclaration: ImportDeclaration, onDelete: () => void }) {
-  const structure = importDeclaration.getStructure();
+export function ImportDeclarationComponent({ importDeclaration: node, onDelete }: { importDeclaration: ImportDeclaration, onDelete: () => void }) {
+  const structure = node.getStructure();
 
   return (
     <>
-      <NodeHeader node={importDeclaration} title={'import ' + (structure.isTypeOnly ? '(type) ' : '') + structure.moduleSpecifier} onDelete={onDelete} />
+      <NodeHeader node={node} title={'import ' + (structure.isTypeOnly ? '(type) ' : '') + structure.moduleSpecifier} onDelete={onDelete} />
+      {node.getImportClause}
+      {node.getLeadingCommentRanges().length}
+      {node.getTrailingCommentRanges().length}
     </>
   );
 }
