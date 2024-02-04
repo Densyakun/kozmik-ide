@@ -1,15 +1,51 @@
-import { CircularProgress, Container, Typography } from '@mui/material';
+import { Box, CircularProgress, Container, Stack, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Project, SourceFile } from 'ts-morph';
 import SaveButton from '@/components/CodeEditor/SaveButton';
-import SourceFileComponent from './SourceFileComponent';
-import { getReplacedText } from './manipulate';
+import SourceFileEditor from './common/Editor';
+import { getFromSourceFile, setToSourceFile } from './common/json';
+
+export function SourceFileContainerLoaded({ sourceFile, filePath, setDirty }: { sourceFile: SourceFile, filePath: string, setDirty: (newValue: boolean) => void }) {
+  const [json, setJSON] = useState(getFromSourceFile(sourceFile));
+
+  // TODO Breadcrumbs
+
+  return (
+    <Stack spacing={1}>
+      <Box>
+        <SaveButton onClick={async () => {
+          setToSourceFile(sourceFile, json);
+          setDirty(true);
+
+          fetch(`/api/fs/file?path=${encodeURIComponent(filePath)}&options=${JSON.stringify({ encoding: "utf8" })}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ data: sourceFile.getFullText() })
+          })
+            .then((response: Response) => {
+              if (!response.ok) throw new Error('Network response was not OK');
+
+              setDirty(false);
+            })
+            .catch(error => {
+              console.error(error);
+            });
+        }} />
+      </Box>
+      <Container sx={{ overflow: 'auto' }}>
+        <SourceFileEditor json={json} setJSON={newJSON => {
+          setJSON({ ...newJSON });
+        }} />
+      </Container>
+    </Stack>
+  );
+}
 
 export default function SourceFileContainer({ filePath }: { filePath: string }) {
   const [loading, setLoading] = useState(true);
   const [sourceFile, setSourceFile] = useState<SourceFile>();
-  const [oldProgramAndComments, setOldProgramAndComments] = useState('');
-  const [oldProgram, setOldProgram] = useState('');
   const [dirty, setDirty] = useState(false);
 
   function loadSourceFile(sourceFileText: string) {
@@ -19,14 +55,6 @@ export default function SourceFileContainer({ filePath }: { filePath: string }) 
 
     const sourceFile = project.createSourceFile(filePath, sourceFileText);
     setSourceFile(sourceFile);
-
-    setOldProgramAndComments(sourceFileText);
-
-    const sourceFileStructure = sourceFile.getStructure();
-    sourceFile.set(sourceFileStructure);
-    setOldProgram(sourceFile.getText());
-
-    sourceFile.replaceWithText(sourceFileText);
   }
 
   function fetchSourceFile() {
@@ -61,41 +89,10 @@ export default function SourceFileContainer({ filePath }: { filePath: string }) 
           {filePath}
           {dirty && "*"}
         </Typography>
-        {loading && <CircularProgress />}
-        {!loading && sourceFile && <SaveButton onClick={async () => {
-          const sourceFileStructure = sourceFile.getStructure();
-          sourceFile.set(sourceFileStructure);
-          const newProgram = sourceFile.getText();
-
-          const replacedText = getReplacedText(
-            oldProgram,
-            oldProgramAndComments,
-            newProgram
-          );
-          //alert(oldProgram);
-          //alert(oldProgramAndComments);
-          //alert(newProgram);
-          sourceFile.replaceWithText(replacedText);
-
-          loadSourceFile(replacedText);
-
-          fetch(`/api/fs/file?path=${encodeURIComponent(filePath)}&options=${JSON.stringify({ encoding: "utf8" })}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ data: replacedText })
-          })
-            .then((response: Response) => {
-              if (!response.ok) throw new Error('Network response was not OK');
-
-              setDirty(false);
-            })
-            .catch(error => {
-              console.error(error);
-            });
-        }} />}
-        {sourceFile && <SourceFileComponent node={sourceFile} setDirty={() => setDirty(true)} />}
+        <Stack spacing={1}>
+          {loading && <CircularProgress />}
+          {!loading && sourceFile && <SourceFileContainerLoaded sourceFile={sourceFile} filePath={filePath} setDirty={setDirty} />}
+        </Stack>
       </Container>
     </>
   );

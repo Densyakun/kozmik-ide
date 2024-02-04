@@ -2,7 +2,9 @@ import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import useUser from '@/lib/useUser'
-import SourceFileContainer from '@/TSMorphEditor/SourceFileContainer'
+import dynamic from 'next/dynamic';
+
+const SourceFileContainer = dynamic(() => import('@/TSMorphEditor/SourceFileContainer'), { ssr: false });
 
 const Home: NextPage = () => {
   const { user } = useUser()

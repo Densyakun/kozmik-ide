@@ -15,8 +15,8 @@ import ListItemText from '@mui/material/ListItemText';
 function BasicList({ sourceFiles }: { sourceFiles: string[] }) {
   return (
     <List>
-      {sourceFiles.map(sourceFile =>
-        <ListItem disablePadding>
+      {sourceFiles.map((sourceFile, index) =>
+        <ListItem key={index} disablePadding>
           <ListItemButton component="a" href={`/ts-morph-editor/source-file?path=${sourceFile}`}>
             <ListItemText primary={sourceFile} />
           </ListItemButton>
