@@ -1,6 +1,8 @@
 import { Editor, JSONType } from 'material-jsoneditor';
 import { getFromSourceFile } from './json';
-import { Stack, TextField } from '@mui/material';
+import { Box, Button, IconButton, List, ListItem, TextField, Typography } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export function JSONEditor({ value, setValue }: { value: JSONType, setValue: (newValue: JSONType) => void }) {
   return (
@@ -13,50 +15,82 @@ export function JSONEditor({ value, setValue }: { value: JSONType, setValue: (ne
 }
 
 export default function SourceFileEditor({ json, setJSON }: { json: ReturnType<typeof getFromSourceFile>, setJSON: (newValue: ReturnType<typeof getFromSourceFile>) => void }) {
-  // TODO EOFコメント範囲の配列CRUD操作
-
   // TODO SyntaxListのCRUD操作
 
   return (
     <>
-      <p>Syntaxes:</p>
-      <JSONEditor value={json.syntaxList as any} setValue={newSyntaxListJson => {
-        if (typeof newSyntaxListJson !== "object") return;
+      <Typography variant="h6">
+        Syntaxes:
+      </Typography>
+      <Box sx={{ px: 2 }}>
+        <JSONEditor value={json.syntaxList.children as any} setValue={newSyntaxListChildrenJson => {
+          if (typeof newSyntaxListChildrenJson !== "object") return;
 
+          let newJSON = json;
+          newJSON.syntaxList.children = newSyntaxListChildrenJson as any;
+          setJSON(newJSON);
+        }} />
+      </Box>
+      <Typography variant="h6">
+        Comment ranges at end of file:
+      </Typography>
+      <CommentRangesEditor commentRanges={json.commentRangesAtEndOfFile} setCommentRanges={newValue => {
         let newJSON = json;
-        newJSON.syntaxList = newSyntaxListJson as any;
+        newJSON.commentRangesAtEndOfFile = newValue;
         setJSON(newJSON);
       }} />
-      <p>Comment ranges at end of file:</p>
-      <Stack spacing={1}>
-        {json.commentRangesAtEndOfFile.map((commentRange, index) =>
-          <CommentRangeEditor key={index} value={commentRange} setValue={newValue => {
-            let newJSON = json;
-            newJSON.commentRangesAtEndOfFile[index] = newValue;
-            setJSON(newJSON);
-          }} />
-        )}
-      </Stack>
     </>
   );
 }
 
-export function CommentRangeEditor({ value, setValue }: { value: string, setValue: (newValue: string) => void }) {
+export function CommentRangesEditor({ commentRanges, setCommentRanges }: { commentRanges: string[], setCommentRanges: (newValue: string[]) => void }) {
   return (
-    <StringEditor
-      value={value}
-      setValue={newValue => setValue(newValue)}
-      isError={!(value.startsWith("//") || value.startsWith("/*") && value.endsWith("*/"))}
-    />
+    <List dense>
+      {commentRanges.map((commentRange, index) =>
+        <ListItem
+          key={index}
+          secondaryAction={
+            <IconButton edge="end" onClick={() => {
+              const newJSON = commentRanges;
+              newJSON.splice(index, 1);
+              setCommentRanges(newJSON);
+            }}>
+              <DeleteIcon />
+            </IconButton>
+          }
+        >
+          <StringEditor
+            value={commentRange}
+            setValue={newValue => {
+              const newJSON = commentRanges;
+              newJSON[index] = newValue;
+              setCommentRanges(newJSON);
+            }}
+            isError={!(commentRange.startsWith("//") || commentRange.startsWith("/*") && commentRange.endsWith("*/"))}
+          />
+        </ListItem>
+      )}
+      <ListItem>
+        <Button variant='outlined' endIcon={<AddIcon />} onClick={() => {
+          let newJSON = commentRanges;
+          newJSON.push('');
+          setCommentRanges(newJSON);
+        }}>
+          Add new
+        </Button>
+      </ListItem>
+    </List>
   );
 }
 
 export function StringEditor({ value, setValue, isError, label }: { value: string, setValue: (newValue: string) => void, isError: boolean, label?: string }) {
   return (
     <TextField
+      fullWidth
       label={label}
       value={value}
       multiline
+      size="small"
       error={isError}
       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
         setValue(event.target.value);

@@ -34,11 +34,11 @@ export function SourceFileContainerLoaded({ sourceFile, filePath, setDirty }: { 
             });
         }} />
       </Box>
-      <Container sx={{ overflow: 'auto' }}>
+      <Box sx={{ overflow: 'auto' }}>
         <SourceFileEditor json={json} setJSON={newJSON => {
           setJSON({ ...newJSON });
         }} />
-      </Container>
+      </Box>
     </Stack>
   );
 }
