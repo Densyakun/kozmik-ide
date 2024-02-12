@@ -1,21 +1,23 @@
 import { Box, CircularProgress, Container, Stack, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { createContext, useEffect, useRef, useState } from 'react';
 import { Project, SourceFile } from 'ts-morph';
 import SaveButton from '@/components/CodeEditor/SaveButton';
 import SourceFileEditor from './common/Editor';
 import { getFromSourceFile, setToSourceFile } from './common/json';
+import { proxy } from 'valtio';
 
-export function SourceFileContainerLoaded({ sourceFile, filePath, setDirty }: { sourceFile: SourceFile, filePath: string, setDirty: (newValue: boolean) => void }) {
-  const [json, setJSON] = useState(getFromSourceFile(sourceFile));
+export const SourceFileContext = createContext<{ value?: ReturnType<typeof getFromSourceFile> }>({});
+
+export function SourceFileContainerLoaded({ sourceFile, filePath }: { sourceFile: SourceFile, filePath: string }) {
+  const state = useRef(proxy({ value: getFromSourceFile(sourceFile) })).current;
 
   // TODO Breadcrumbs
 
-  return (
-    <Stack spacing={1}>
+  return <SourceFileContext.Provider value={state}>
+    <Stack spacing={1} sx={{ overflow: 'auto' }}>
       <Box>
         <SaveButton onClick={async () => {
-          setToSourceFile(sourceFile, json);
-          setDirty(true);
+          setToSourceFile(sourceFile, state.value);
 
           fetch(`/api/fs/file?path=${encodeURIComponent(filePath)}&options=${JSON.stringify({ encoding: "utf8" })}`, {
             method: 'POST',
@@ -26,8 +28,6 @@ export function SourceFileContainerLoaded({ sourceFile, filePath, setDirty }: { 
           })
             .then((response: Response) => {
               if (!response.ok) throw new Error('Network response was not OK');
-
-              setDirty(false);
             })
             .catch(error => {
               console.error(error);
@@ -35,18 +35,15 @@ export function SourceFileContainerLoaded({ sourceFile, filePath, setDirty }: { 
         }} />
       </Box>
       <Box sx={{ overflow: 'auto' }}>
-        <SourceFileEditor json={json} setJSON={newJSON => {
-          setJSON({ ...newJSON });
-        }} />
+        <SourceFileEditor />
       </Box>
     </Stack>
-  );
+  </SourceFileContext.Provider>;
 }
 
 export default function SourceFileContainer({ filePath }: { filePath: string }) {
   const [loading, setLoading] = useState(true);
   const [sourceFile, setSourceFile] = useState<SourceFile>();
-  const [dirty, setDirty] = useState(false);
 
   function loadSourceFile(sourceFileText: string) {
     const project = new Project({
@@ -83,17 +80,22 @@ export default function SourceFileContainer({ filePath }: { filePath: string }) 
   }, [filePath])
 
   return (
-    <>
-      <Container fixed>
+    <div style={{
+      position: 'absolute',
+      width: '100%',
+      height: '100%',
+      left: 0,
+      top: 0,
+    }}>
+      <Container fixed sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         <Typography variant="subtitle1">
           {filePath}
-          {dirty && "*"}
         </Typography>
-        <Stack spacing={1}>
+        <Stack spacing={1} sx={{ overflow: 'auto' }}>
           {loading && <CircularProgress />}
-          {!loading && sourceFile && <SourceFileContainerLoaded sourceFile={sourceFile} filePath={filePath} setDirty={setDirty} />}
+          {!loading && sourceFile && <SourceFileContainerLoaded sourceFile={sourceFile} filePath={filePath} />}
         </Stack>
       </Container>
-    </>
+    </div>
   );
 }

@@ -1,59 +1,53 @@
-import { Editor, JSONType } from 'material-jsoneditor';
-import { getFromSourceFile } from './json';
-import { Box, Button, IconButton, List, ListItem, TextField, Typography } from '@mui/material';
+import { getFromNode } from './json';
+import { Accordion, AccordionDetails, AccordionSummary, Button, IconButton, List, ListItem, Paper, TextField, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { SyntaxKind } from 'ts-morph';
+import { useContext } from 'react';
+import { useSnapshot } from 'valtio';
+import { SourceFileContext } from '../SourceFileContainer';
 
-export function JSONEditor({ value, setValue }: { value: JSONType, setValue: (newValue: JSONType) => void }) {
-  return (
-    <Editor value={value} onChange={newValue => {
-      if (!newValue || value === newValue) return;
+export const kindCount = 363;
 
-      setValue(newValue);
-    }} />
-  );
+export function getKindHue(kind: number) {
+  return kind * 360 / kindCount;
 }
 
-export default function SourceFileEditor({ json, setJSON }: { json: ReturnType<typeof getFromSourceFile>, setJSON: (newValue: ReturnType<typeof getFromSourceFile>) => void }) {
-  // TODO SyntaxListのCRUD操作
+export default function SourceFileEditor() {
+  const state = useContext(SourceFileContext);
+  useSnapshot(state);
+
+  if (!state.value)
+    return null;
 
   return (
     <>
       <Typography variant="h6">
         Syntaxes:
       </Typography>
-      <Box sx={{ px: 2 }}>
-        <JSONEditor value={json.syntaxList.children as any} setValue={newSyntaxListChildrenJson => {
-          if (typeof newSyntaxListChildrenJson !== "object") return;
-
-          let newJSON = json;
-          newJSON.syntaxList.children = newSyntaxListChildrenJson as any;
-          setJSON(newJSON);
-        }} />
-      </Box>
+      {state.value.syntaxList.children.map((child, index) =>
+        <NodeEditor key={index} node={child} />
+      )}
       <Typography variant="h6">
         Comment ranges at end of file:
       </Typography>
-      <CommentRangesEditor commentRanges={json.commentRangesAtEndOfFile} setCommentRanges={newValue => {
-        let newJSON = json;
-        newJSON.commentRangesAtEndOfFile = newValue;
-        setJSON(newJSON);
-      }} />
+      <CommentRangesEditor commentRanges={state.value.commentRangesAtEndOfFile} />
     </>
   );
 }
 
-export function CommentRangesEditor({ commentRanges, setCommentRanges }: { commentRanges: string[], setCommentRanges: (newValue: string[]) => void }) {
+export function CommentRangesEditor({ commentRanges }: { commentRanges: string[] }) {
+  const commentRanges_ = useSnapshot(commentRanges);
+
   return (
     <List dense>
-      {commentRanges.map((commentRange, index) =>
+      {commentRanges_.map((commentRange, index) =>
         <ListItem
           key={index}
           secondaryAction={
             <IconButton edge="end" onClick={() => {
-              const newJSON = commentRanges;
-              newJSON.splice(index, 1);
-              setCommentRanges(newJSON);
+              commentRanges.splice(index, 1);
             }}>
               <DeleteIcon />
             </IconButton>
@@ -62,9 +56,7 @@ export function CommentRangesEditor({ commentRanges, setCommentRanges }: { comme
           <StringEditor
             value={commentRange}
             setValue={newValue => {
-              const newJSON = commentRanges;
-              newJSON[index] = newValue;
-              setCommentRanges(newJSON);
+              commentRanges[index] = newValue;
             }}
             isError={!(commentRange.startsWith("//") || commentRange.startsWith("/*") && commentRange.endsWith("*/"))}
           />
@@ -72,14 +64,64 @@ export function CommentRangesEditor({ commentRanges, setCommentRanges }: { comme
       )}
       <ListItem>
         <Button variant='outlined' endIcon={<AddIcon />} onClick={() => {
-          let newJSON = commentRanges;
-          newJSON.push('');
-          setCommentRanges(newJSON);
+          commentRanges.push('');
         }}>
           Add new
         </Button>
       </ListItem>
     </List>
+  );
+}
+
+export function NodeEditor({ node }: { node: ReturnType<typeof getFromNode> }) {
+  // TODO テキストの編集
+  // TODO コメント範囲
+
+  return (
+    <>
+      {node.children && node.children.length
+        ? <Accordion
+          defaultExpanded
+          disableGutters
+          elevation={4}
+          TransitionProps={{ timeout: 0 }}
+          sx={{
+            backgroundColor: `hsl(${getKindHue(node.kind)}, 50%, 75%)`,
+            px: 1,
+            py: 0.5,
+          }}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            sx={{
+              minHeight: 0,
+              ".MuiAccordionSummary-content": {
+                my: 0,
+              },
+            }}
+          >
+            {SyntaxKind[node.kind]}
+          </AccordionSummary>
+          <AccordionDetails>
+            {node.children.map((child, index) =>
+              <NodeEditor key={index} node={child} />
+            )}
+          </AccordionDetails>
+        </Accordion>
+        : <Paper
+          elevation={4}
+          sx={{
+            backgroundColor: `hsl(${getKindHue(node.kind)}, 50%, 75%)`,
+            px: 1,
+            py: 0.5,
+          }}
+        >
+          {node.leadingCommentRanges?.join('\n')}
+          {SyntaxKind[node.kind]}
+          {node.trailingCommentRanges?.join('\n')}
+        </Paper>
+      }
+    </>
   );
 }
 
