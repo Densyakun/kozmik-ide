@@ -1,8 +1,6 @@
 /*
 ツリー構造のJSONオブジェクトを取得したり、
 JSONオブジェクトからノードを設定する。
-
-EndOfFileのコーディングスタイルは保証しない。
 */
 import { Node, SourceFile, SyntaxKind, SyntaxList } from 'ts-morph';
 
@@ -34,9 +32,19 @@ export function setToSourceFile(sourceFile: SourceFile, json: ReturnType<typeof 
     if (nodeJson.children)
       nodeJson.children.forEach(childJson => addChildText(childJson));
     else {
-      text += nodeJson.fullText;
+      if (nodeJson.leadingCommentRanges)
+        nodeJson.leadingCommentRanges.forEach(commentRange => {
+          text += commentRange;
+          if (commentRange.startsWith('//'))
+            text += '\n';
+        });
+      text += nodeJson.text + ' ';
       if (nodeJson.trailingCommentRanges)
-        text += nodeJson.trailingCommentRanges.join('');
+        nodeJson.trailingCommentRanges.forEach(commentRange => {
+          text += commentRange;
+          if (commentRange.startsWith('//'))
+            text += '\n';
+        });
     }
   }
   json.syntaxList.children.forEach(childJson => addChildText(childJson));
@@ -55,20 +63,19 @@ export function getFromSyntaxList(syntaxList: SyntaxList) {
 
   return {
     kind: syntaxList.getKind(),
-    children: children.map((child, index, array) => getFromNode(child, index === array.length - 1)),
+    children: children.map(child => getFromNode(child)),
   };
 }
 
 export type NodeJson = {
   kind: SyntaxKind;
   children?: NodeJson[];
-  fullText?: string;
+  text?: string;
   leadingCommentRanges?: string[];
   trailingCommentRanges?: string[];
 };
 
-export function getFromNode(node: Node, isLast: boolean): NodeJson/* | ReturnType<typeof getFromImportDeclaration>*/ {
-  // コメントが重複しないよう、親要素に対して末尾の要素である場合のみ、trailingCommentRangesを持つ
+export function getFromNode(node: Node): NodeJson {
   const kind = node.getKind();
 
   const children = getChildrenOtherThanComments(node);
@@ -76,12 +83,15 @@ export function getFromNode(node: Node, isLast: boolean): NodeJson/* | ReturnTyp
   return children.length
     ? {
       kind,
-      children: children.map((child, index, array) => getFromNode(child, index === array.length - 1)),
+      children: children.map(child =>
+        child.isKind(SyntaxKind.SyntaxList)
+          ? getFromSyntaxList(child as SyntaxList)
+          : getFromNode(child)),
     }
     : {
       kind,
-      fullText: node.getFullText(),
+      text: node.getText(),
       leadingCommentRanges: node.getLeadingCommentRanges().map(commentRange => commentRange.getText()),
-      trailingCommentRanges: isLast ? node.getTrailingCommentRanges().map(commentRange => commentRange.getText()) : undefined,
+      trailingCommentRanges: node.getTrailingCommentRanges().map(commentRange => commentRange.getText()),
     };
 }

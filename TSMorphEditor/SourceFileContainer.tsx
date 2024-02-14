@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Container, Stack, Typography } from '@mui/material';
+import { Box, CircularProgress, Container, Paper, Stack, Typography } from '@mui/material';
 import { createContext, useEffect, useRef, useState } from 'react';
 import { Project, SourceFile } from 'ts-morph';
 import SaveButton from '@/components/CodeEditor/SaveButton';
@@ -14,8 +14,11 @@ export function SourceFileContainerLoaded({ sourceFile, filePath }: { sourceFile
   // TODO Breadcrumbs
 
   return <SourceFileContext.Provider value={state}>
-    <Stack spacing={1} sx={{ overflow: 'auto' }}>
-      <Box>
+    <Stack spacing={1} alignItems='stretch' sx={{ height: '100%' }}>
+      <Paper square sx={{ background: '#ddd', p: 1 }}>
+        <Typography variant="subtitle1">
+          {filePath}
+        </Typography>
         <SaveButton onClick={async () => {
           setToSourceFile(sourceFile, state.value);
 
@@ -33,9 +36,11 @@ export function SourceFileContainerLoaded({ sourceFile, filePath }: { sourceFile
               console.error(error);
             });
         }} />
-      </Box>
+      </Paper>
       <Box sx={{ overflow: 'auto' }}>
-        <SourceFileEditor />
+        <Container fixed>
+          <SourceFileEditor />
+        </Container>
       </Box>
     </Stack>
   </SourceFileContext.Provider>;
@@ -80,22 +85,22 @@ export default function SourceFileContainer({ filePath }: { filePath: string }) 
   }, [filePath])
 
   return (
-    <div style={{
+    <Box style={{
       position: 'absolute',
       width: '100%',
       height: '100%',
       left: 0,
       top: 0,
     }}>
-      <Container fixed sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <Typography variant="subtitle1">
-          {filePath}
-        </Typography>
-        <Stack spacing={1} sx={{ overflow: 'auto' }}>
-          {loading && <CircularProgress />}
-          {!loading && sourceFile && <SourceFileContainerLoaded sourceFile={sourceFile} filePath={filePath} />}
+      {loading &&
+        <Stack spacing={1}>
+          <Typography variant="subtitle1">
+            {filePath}
+          </Typography>
+          <CircularProgress />
         </Stack>
-      </Container>
-    </div>
+      }
+      {!loading && sourceFile && <SourceFileContainerLoaded sourceFile={sourceFile} filePath={filePath} />}
+    </Box>
   );
 }

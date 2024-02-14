@@ -1,10 +1,10 @@
 import { getFromNode } from './json';
-import { Accordion, AccordionDetails, AccordionSummary, Button, IconButton, List, ListItem, Paper, TextField, Typography } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Button, Dialog, DialogContent, DialogTitle, IconButton, List, ListItem, Paper, TextField, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { SyntaxKind } from 'ts-morph';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { useSnapshot } from 'valtio';
 import { SourceFileContext } from '../SourceFileContainer';
 
@@ -16,7 +16,7 @@ export function getKindHue(kind: number) {
 
 export default function SourceFileEditor() {
   const state = useContext(SourceFileContext);
-  useSnapshot(state);
+  //useSnapshot(state, { sync: true });
 
   if (!state.value)
     return null;
@@ -38,7 +38,7 @@ export default function SourceFileEditor() {
 }
 
 export function CommentRangesEditor({ commentRanges }: { commentRanges: string[] }) {
-  const commentRanges_ = useSnapshot(commentRanges);
+  const commentRanges_ = useSnapshot(commentRanges, { sync: true });
 
   return (
     <List dense>
@@ -75,13 +75,12 @@ export function CommentRangesEditor({ commentRanges }: { commentRanges: string[]
 
 export function NodeEditor({ node }: { node: ReturnType<typeof getFromNode> }) {
   // TODO テキストの編集
-  // TODO コメント範囲
 
   return (
     <>
       {node.children && node.children.length
         ? <Accordion
-          defaultExpanded
+          //defaultExpanded
           disableGutters
           elevation={4}
           TransitionProps={{ timeout: 0 }}
@@ -113,16 +112,72 @@ export function NodeEditor({ node }: { node: ReturnType<typeof getFromNode> }) {
           sx={{
             backgroundColor: `hsl(${getKindHue(node.kind)}, 50%, 75%)`,
             px: 1,
-            py: 0.5,
           }}
         >
-          {node.leadingCommentRanges?.join('\n')}
           {SyntaxKind[node.kind]}
-          {node.trailingCommentRanges?.join('\n')}
+          {node.leadingCommentRanges && <CommentRangesButton
+            commentRanges={node.leadingCommentRanges}
+            setCommentRanges={newValue => { node.leadingCommentRanges = newValue }}
+            isLeading
+          />}
+          {node.text}
+          {node.trailingCommentRanges && <CommentRangesButton
+            commentRanges={node.trailingCommentRanges}
+            setCommentRanges={newValue => { node.trailingCommentRanges = newValue }}
+          />}
         </Paper>
       }
     </>
   );
+}
+
+export interface CommentRangesDialogProps {
+  open: boolean;
+  commentRanges: string[];
+  onClose: (value: string[]) => void;
+}
+
+function CommentRangesDialog(props: CommentRangesDialogProps) {
+  const { onClose, commentRanges, open } = props;
+
+  const handleClose = () => {
+    onClose(commentRanges);
+  };
+
+  return (
+    <Dialog onClose={handleClose} open={open}>
+      <DialogTitle>Set comment ranges</DialogTitle>
+      <DialogContent>
+        <CommentRangesEditor commentRanges={commentRanges} />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function CommentRangesButton({ commentRanges, setCommentRanges, isLeading }: { commentRanges: string[], setCommentRanges: (newValue: string[]) => void, isLeading?: boolean }) {
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (value: string[]) => {
+    setOpen(false);
+    setCommentRanges(value);
+  };
+
+  const str = commentRanges.join('\n');
+
+  return <>
+    <Button size='small' onClick={handleClickOpen} sx={{ textTransform: 'none' }}>
+      {commentRanges.length ? str.length <= 8 ? str : str.substring(0, 5) + '...' : isLeading ? 'leading' : 'trailing'}
+    </Button>
+    <CommentRangesDialog
+      commentRanges={commentRanges}
+      open={open}
+      onClose={handleClose}
+    />
+  </>;
 }
 
 export function StringEditor({ value, setValue, isError, label }: { value: string, setValue: (newValue: string) => void, isError: boolean, label?: string }) {
