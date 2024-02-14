@@ -32,13 +32,15 @@ export function setToSourceFile(sourceFile: SourceFile, json: ReturnType<typeof 
     if (nodeJson.children)
       nodeJson.children.forEach(childJson => addChildText(childJson));
     else {
-      if (nodeJson.leadingCommentRanges)
+      if (nodeJson.leadingCommentRanges) {
+        if (text.length)
+          text += '\n';
         nodeJson.leadingCommentRanges.forEach(commentRange => {
           text += commentRange;
           if (commentRange.startsWith('//'))
             text += '\n';
         });
-      text += nodeJson.text + ' ';
+      } text += nodeJson.text + ' ';
       if (nodeJson.trailingCommentRanges)
         nodeJson.trailingCommentRanges.forEach(commentRange => {
           text += commentRange;

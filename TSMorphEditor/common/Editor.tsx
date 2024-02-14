@@ -1,4 +1,4 @@
-import { getFromNode } from './json';
+import { NodeJson, getFromNode } from './json';
 import { Accordion, AccordionDetails, AccordionSummary, Button, Dialog, DialogContent, DialogTitle, IconButton, List, ListItem, Paper, TextField, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -120,7 +120,10 @@ export function NodeEditor({ node }: { node: ReturnType<typeof getFromNode> }) {
             setCommentRanges={newValue => { node.leadingCommentRanges = newValue }}
             isLeading
           />}
-          {node.text}
+          {<NodeTextButton
+            node={node}
+            setText={newValue => { node.text = newValue }}
+          />}
           {node.trailingCommentRanges && <CommentRangesButton
             commentRanges={node.trailingCommentRanges}
             setCommentRanges={newValue => { node.trailingCommentRanges = newValue }}
@@ -180,7 +183,59 @@ export function CommentRangesButton({ commentRanges, setCommentRanges, isLeading
   </>;
 }
 
-export function StringEditor({ value, setValue, isError, label }: { value: string, setValue: (newValue: string) => void, isError: boolean, label?: string }) {
+export interface NodeTextDialogProps {
+  open: boolean;
+  node: NodeJson;
+  onClose: (value?: string) => void;
+}
+
+function NodeTextDialog(props: NodeTextDialogProps) {
+  const { onClose, node, open } = props;
+
+  const { text } = useSnapshot(node, { sync: true });
+
+  const handleClose = () => {
+    onClose(text);
+  };
+
+  return (
+    <Dialog onClose={handleClose} open={open}>
+      <DialogTitle>Set node text</DialogTitle>
+      <DialogContent>
+        <StringEditor
+          value={text || ''}
+          setValue={newValue => node.text = newValue}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function NodeTextButton({ node, setText }: { node: NodeJson, setText: (newValue?: string) => void }) {
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (value?: string) => {
+    setOpen(false);
+    setText(value);
+  };
+
+  return <>
+    <Button size='small' onClick={handleClickOpen} sx={{ textTransform: 'none' }}>
+      {node.text || 'text'}
+    </Button>
+    <NodeTextDialog
+      node={node}
+      open={open}
+      onClose={handleClose}
+    />
+  </>;
+}
+
+export function StringEditor({ value, setValue, isError, label }: { value: string, setValue: (newValue: string) => void, isError?: boolean, label?: string }) {
   return (
     <TextField
       fullWidth
