@@ -74,8 +74,6 @@ export function CommentRangesEditor({ commentRanges }: { commentRanges: string[]
 }
 
 export function NodeEditor({ node }: { node: ReturnType<typeof getFromNode> }) {
-  // TODO テキストの編集
-
   return (
     <>
       {node.children && node.children.length
